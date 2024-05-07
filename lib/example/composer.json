@@ -1,0 +1,6 @@
+{
+    "type": "test-printer",
+    "require": {
+    	"mike42/escpos-php":"*"
+    }
+}

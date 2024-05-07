@@ -1,0 +1,155 @@
+view
+
+			<!-- table tax  -->
+			<div>
+				<div class="p-2 bg-dark pt-3 pb-3 menu-setting d-none" id="setting-tax">
+					<div class="row"  id="tax-column-view">
+						<div class="col-6">
+							<ul class="breadcrumb action-bar breadcrumb-menu">
+								<li class="mr-4">
+									<a href="#" id="btn-add">
+										<i class="fa fa-plus-circle"></i> Add Tax
+									</a>
+								</li>
+							</ul>
+						</div>
+						<div class="row col-12 p-0 m-0" id="tax-type-table">				
+					</div>
+
+						<div class="col-6">
+							<ul class="breadcrumb bg-none pull-right">
+								<li class="breadcrumb-item"><b class="text-white">TAX</b></li>
+								<li class="breadcrumb-item"><b class="text-white">Tabel Pajak</b></li>
+							</ul>
+						</div>
+						
+					</div>
+				</div>
+
+				<!-- tax form -->
+				<form class="row pb-2 bg-green " id="form-input" method="POST" enctype="multipart/form-data" action="P_tax.php">
+					<!-- Isi form input di sini -->
+					<span class="col-12 pb-2">
+						<span class="pointer" id="btn-cancel"><i class="fa fa-close pointer btn-form-tax-cancel"></i> Close </span>
+						<input type="hidden" name="id_tax" id="id_tax">
+						<input type="hidden" name="aksi" id="aksi">
+					</span>
+
+					<span class="col-lg-3 col-sm-5">
+						<div class="row col-13">
+							<!-- Field untuk tanggal awal -->
+							<input type="text" class="form-control" name="date_from" id="date_from" autocomplete="off" placeholder="Dari Tanggal">
+							<!-- Tambahkan elemen kalender untuk memilih tanggal -->
+							<div class="input-group-append">
+								<label class="btn btn-secondary bor-right" for="date_from">
+									<i class="fa fa-calendar"></i>
+								</label>
+							</div>
+							<div class="text-danger col-md-12 row"></div>
+						</div>
+					</span>
+						<span class="col-lg-3 col-sm-5">
+						<div class="row col-12">
+							<!-- Field untuk tanggal berakhir -->
+							<input type="text" class="form-control" name="date_till" id="date_till" autocomplete="off" placeholder="Sampai Tanggal">
+							<!-- Tambahkan elemen kalender untuk memilih tanggal -->
+							<div class="input-group-append">
+								<label class="btn btn-secondary bor-right" for="date_till">
+									<i class="fa fa-calendar"></i>
+								</label>
+							</div>
+							<div class="text-danger col-md-12 row"></div>
+						</div>
+					</span>
+						<span>
+						<div class="row col-lg-12 mt-3">
+							<label class="row col-lg-4 col-sm-12">Persentase</label>
+							<!-- Field untuk persentase -->
+							<div class="row col-lg-2 col-sm-12">
+								<div class="input-group">
+									<input type="text" class="form-control bor-left number" name="persentage" id="persentage" maxlength="3" autocomplete="off">
+									<div class="input-group-append">
+										<button type="button" class="btn btn-secondary bor-right">%</button>
+									</div>
+									<div class="text-danger col-md-12 row"></div>
+								</div>
+							</div>
+						</div>
+					</span>
+						<span class="col-lg-2 col-sm-5">
+						<div class="row col-12">
+							<label>Status:</label><br>
+							<!-- Field untuk status (Enable/Disable) -->
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="stat" id="enable" value="enable" checked>
+								<label class="form-check-label" for="enable">Enable</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="stat" id="disable" value="disable">
+								<label class="form-check-label" for="disable">Disable</label>
+							</div>
+						</div>
+					</span>						
+						<span class="col-2 pl-1">
+						<button class="btn btn-primary btn-form-tax-add" id="btn-submit">Submit</button>
+					</span>
+				</form>
+				<!-- close halaman add  -->
+
+				<div class="row card-body">
+					<div class="table-responsive">
+						<table class="table table-hover table-striped" id="view-tax">
+							<thead>
+								<tr>
+									<th class="pr-0" width="5%">
+										<div class="i-checks">
+											<input type="checkbox" class="check-all checkbox-template">
+										</div>
+									</th>
+									<th width="10%">Persentage</th>
+									<th width="25%">Date From</th>
+									<th width="25%">Till Date</th>
+									<th width="10%">Status</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php
+								$db = model('M_tax');
+								$fetch = $db->getTax();
+								$data = $fetch['data'];
+								$row = $fetch['row'];
+								$no = 1;
+								foreach ($data as $view) { ?>
+									<tr>
+										<td>
+											<div class="i-checks">
+												<input type="checkbox" class="check checkbox-template" name="id[]" value="<?php echo $view['id_tax']; ?>">
+											</div>
+										</td>
+										<td><?php echo $view['persentage']; ?></td>
+										<td><?php echo $view['date_from']; ?></td>
+										<td><?php echo $view['date_till']; ?></td>
+										<td><?php echo $view['stat']; ?></td>
+										<td>
+											
+											<a href="index.php?page=p_tax&sub=detail&id=<?php echo base64_encode($view['id_tax']); ?>&s=<?php echo base64_encode($view['date_from']); ?>&e=<?php echo base64_encode($view['date_till']); ?>">
+												<!-- Detail  -->
+											</a>
+											|
+											<a href="#" class="btn-edit" data-id="<?php echo $view['id_tax'].'&'.$view['persentage'].'&'.$view['date_from'].'&'.$view['date_till'].'&'.$view['stat'] ?>">
+												<i class="fa fa-pencil mr-1"></i>
+											</a>
+											|
+											<a href="#" data-toggle="modal" data-target="#btn_delete" data-id="<?php echo $view['id_tax']; ?>">
+												<i class="fa fa-trash"></i>
+											</a>
+										</td>
+									</tr>
+								<?php } ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			<!-- </div> -->
+		<!-- close tax
