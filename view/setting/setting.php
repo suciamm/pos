@@ -25,7 +25,7 @@
 				<span>Tax</span>
 				</div>
 			</div>
-			<div class="row setting-content setting-charge" data-id="setting-charge">
+			<div class="row setting-content setting-service" data-id="setting-service">
 				<div class="col-11 offset-1 setting-menu">
 					<span>Service Charge</span>
 				</div>
@@ -292,9 +292,7 @@
 						</div>
 					</span>						
 						<span class="col-2 pl-1">
-						<!-- <button class="btn btn-primary btn-form-tax-add" id="btn-submit" onclick="coba()">Submit</button> -->
-						<!-- <button id="btn-add-tax" class="btn btn-primary btn-form-tax-add btn-submit-add">Submit</button> -->
-						<button id="btn-add-tax" class="btn btn-primary btn-form-tax-add btn-submit-add">Submit</button>
+						<button id="btn-add-walfa" class="btn btn-primary btn-form-tax-add btn-submit-add">Submit</button>
 
 					</span>
 				</form>
@@ -359,20 +357,161 @@
 			<!-- </div> -->
 		<!-- close tax -->
 			
+
 		<!-- table Service Charge -->
-		
-		<div class="row mt-0 pt-0" id="service-charge-view">
-			<div class="row col-12 pl-5">
-				<ul class="breadcrumb action-bar pt-0 pb-4 fs-14">				
-					<li class="mr-4">
-						<a href="#" id="add-service-charge">
-						<i class="fa fa-plus-circle"></i> ADD SERVICE CHARGE</a>
-					</li>
-				</ul>
-			</div>
-			<div class="row col-12 p-0 m-0" id="service-charge-table">				
-			</div>
-		</div>
+			<!-- <div> -->
+			<div class="p-0 bg-dark pt-3 pb-3 menu-setting d-none" id="setting-service">
+					<div class="row"  id="service-column-view">
+						<div class="col-6">
+							<ul class="breadcrumb action-bar breadcrumb-menu">
+								<li class="mr-4">
+									<a href="#" id="btn-add-service">
+										<i class="fa fa-plus-circle"></i> Add Service Charge
+									</a>
+								</li>
+							</ul>
+						</div>
+						<div class="row col-12 p-0 m-0" id="service-type-table">				
+					</div>
+
+						<div class="col-6">
+							<ul class="breadcrumb bg-none pull-right">
+								<li class="breadcrumb-item"><b class="text-white">SERVICE CHARGE</b></li>							</ul>
+						</div>
+						
+					</div>
+				</div>
+
+				<!-- service form -->
+				<!-- <form class="row pb-2 bg-green " id="form-input-tax" method="POST" enctype="multipart/form-data" action="P_tax.php"> -->
+				<form class="row d-none pb-2 bg-white " id="form-input-service" method="POST" enctype="multipart/form-data">
+					<!-- Isi form input di sini -->
+					<span class="col-12 pb-2">
+						<span class="pointer" id="btn-cancel"><i class="fa fa-close pointer btn-form-service-cancel"></i> Close </span>
+						<input type="hidden" name="aksi" id="aksi" value="addService">
+						<input type="hidden" name="id_service" id="id_service">
+						<!-- <input type="hidden" name="aksi" id="tax_aksi"> -->
+					</span>
+
+					<span class="col-lg-3 col-sm-5">
+						<div class="row col-13">
+							<!-- Field untuk tanggal awal -->
+							<input type="date" class="form-control" name="date_from" id="date_from" autocomplete="off" placeholder="Dari Tanggal">
+							<!-- Tambahkan elemen kalender untuk memilih tanggal -->
+							<div class="input-group-append">
+								<label class="btn btn-secondary bor-right" for="date_from">
+									<i class="fa fa-calendar"></i>
+								</label>
+							</div>
+							<div class="text-danger col-md-12 row"></div>
+						</div>
+					</span>
+						<span class="col-lg-3 col-sm-5">
+						<div class="row col-12">
+							<!-- Field untuk tanggal berakhir -->
+							<input type="date" class="form-control" name="date_till" id="date_till" autocomplete="off" placeholder="Sampai Tanggal">
+							<!-- Tambahkan elemen kalender untuk memilih tanggal -->
+							<div class="input-group-append">
+								<label class="btn btn-secondary bor-right" for="date_till">
+									<i class="fa fa-calendar"></i>
+								</label>
+							</div>
+							<div class="text-danger col-md-12 row"></div>
+						</div>
+					</span>
+						<span>
+						<div class="row col-lg-12 mt-3">
+							<label class="row col-lg-4 col-sm-12">Persentase</label>
+							<!-- Field untuk persentase -->
+							<div class="row col-lg-2 col-sm-12">
+								<div class="input-group">
+									<input type="number" class="form-control bor-left number" name="persentage" id="persentage" maxlength="3" autocomplete="off">
+									<div class="input-group-append">
+										<button type="button" class="btn btn-secondary bor-right">%</button>
+									</div>
+									<div class="text-danger col-md-12 row"></div>
+								</div>
+							</div>
+						</div>
+					</span>
+						<span class="col-lg-2 col-sm-5">
+						<div class="row col-12">
+							<label>Status:</label><br>
+							<!-- Field untuk status (Enable/Disable) -->
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="stat" id="enable" value="enable" checked>
+								<label class="form-check-label" for="enable">Enable</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="stat" id="disable" value="disable">
+								<label class="form-check-label" for="disable">Disable</label>
+							</div>
+						</div>
+					</span>						
+						<span class="col-2 pl-1">
+						<button id="btn-add-service-charge" class="btn btn-primary btn-form-service-add btn-submit-add">Submit</button>
+
+					</span>
+				</form>
+				<!-- close halaman add  -->
+
+				<div class="row card-body">
+					<div class="table-responsive">
+						<table class="table table-hover table-striped" id="view-service">
+							<thead>
+								<tr>
+									<th class="pr-0" width="5%">
+										<div class="i-checks">
+											<input type="checkbox" class="check-all checkbox-template">
+										</div>
+									</th>
+									<th width="10%">Persentage</th>
+									<th width="25%">Date From</th>
+									<th width="25%">Till Date</th>
+									<th width="10%">Status</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php
+								$db = model('M_service');
+								$fetch = $db->getService();
+								$data = $fetch['data'];
+								$row = $fetch['row'];
+								$no = 1;
+								foreach ($data as $view) { ?>
+									<tr>
+										<td>
+											<div class="i-checks">
+												<input type="checkbox" class="check checkbox-template" name="id[]" value="<?php echo $view['id_service']; ?>">
+											</div>
+										</td>
+										<td><?php echo $view['persentage']; ?></td>
+										<td><?php echo $view['date_from']; ?></td>
+										<td><?php echo $view['date_till']; ?></td>
+										<td><?php echo $view['stat']; ?></td>
+										<td>
+											
+											<!-- <a href="index.php?page=p_tax&sub=detail&id=<?php echo base64_encode($view['id_tax']); ?>&s=<?php echo base64_encode($view['date_from']); ?>&e=<?php echo base64_encode($view['date_till']); ?>"> -->
+												<!-- Detail  -->
+											<!-- </a> -->
+											|
+											<a href="#" class="btn-edit-tax" data-id="<?php echo $view['id_service'].'&'.$view['persentage'].'&'.$view['date_from'].'&'.$view['date_till'].'&'.$view['stat'] ?>">
+												<i class="fa fa-pencil mr-1"></i>
+											</a>
+											|
+											<a href="#" data-toggle="modal" data-target="#btn_delete" data-id="<?php echo $view['id_service']; ?>">
+												<i class="fa fa-trash"></i>
+											</a>
+
+										</td>
+									</tr>
+								<?php } ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			<!-- </div> -->
 
 
 
@@ -636,25 +775,6 @@
 				}
 			})	
 		}	
-
-
-		// /*
-		// TAX
-		// */
-
-		// function formPayment(url) {
-		// 	$.ajax({
-		// 		url 	: url,
-		// 		type 	: 'POST',
-		// 		data 	:  $('#form-tax-t').serialize(),
-		// 		dataType: 'html',
-		// 		success	: function(response){
-		// 			var data =  $.parseJSON(response);
-		// 			if(data.status == 'success') { notification(data.msg,'right top','success','notifSuccess',5000); } 
-		// 			else { notification(data.msg,'right top','danger','notifDanger',5000); }
-		// 		}
-		// 	})	
-		// }
 
 </script>
 
@@ -1156,7 +1276,7 @@
 		
 		$(document).ready(function() {
 			// Tempatkan kode JavaScript di sini
-			$('#btn-add-tax').click(function(event) {
+			$('#btn-add-walfa').click(function(event) {
 				event.preventDefault();
 				$('#aksi').val('addTax');
 				TaxAdd(); // Panggil fungsi TaxAdd saat tombol ditekan
@@ -1168,22 +1288,24 @@
 				url: URL_TAX,
 				type: 'POST',
 				data: $('#form-input-tax').serialize(),
+				// alert(form-input-tax);
+				//console.log($('#form-input-tax').serialize());
 				dataType: 'json',
 				success: function(response) {
 					if (response.status == 'success') {
+						//notification(data.msg,'right top','success','notifSuccess',5000); // Pastikan penutup kurung lengkap di sini
 						alert('Data berhasil disimpan');
-						// Lakukan tindakan lain setelah sukses menyimpan data
-						// Contoh: sembunyikan form setelah berhasil
-						$('#form-input-tax').addClass('d-none');
-						$('#table-filter').removeClass('d-none');
 					} else {
+						notification(data.msg,'right top','danger','notifDanger',5000); // Pastikan penutup kurung lengkap di sini
 						alert('Gagal menyimpan data');
 					}
 				},
 				error: function(xhr, status, error) {
-					console.log(xhr.responseText);
+					// Fungsi yang dipanggil jika terjadi kesalahan pada AJAX request
+					console.log(xhr.responseText); // Debug: Log pesan kesalahan ke konsol browser
 					alert('Terjadi kesalahan saat mengirim data');
 				}
+				
 			});
 		}
 
@@ -1195,16 +1317,15 @@
 
 			//TaxAdd(url);
 			// alert("muncul");
-			
+			event.preventDefault();
 			//$('#tax-column-view').addClass('d-none');
 			//$('#view-tax').removeClass('d-none');
 			// var url = 'process/P_tax.php';
 
 			// Mengatur nilai-nilai elemen input
 			$('#aksi_tax').val('addTax');
-			event.preventDefault();
 			//$('#aksi').val('addTax');
-			
+
 			//$('#tax_aksi').val('`addTax`');
 			$('#persentage').val(persentage);
 			$('#date_from').val(date_from);
@@ -1217,32 +1338,35 @@
 			$('#form-input-tax').removeClass('d-none');
 			$('.btn-submit-add').removeClass('d-none');
 			$('#btn-submit').text('Save');
-		});
+			});
 
 
 		//EDIT TAX
-
-		// function TaxEdit() {
-		// 	$.ajax({
-		// 		url: URL_TAX,
-		// 		type: 'POST',
-		// 		data: $('#form-input-tax').serialize(),
-		// 		dataType: 'json',
-		// 		success: function(response) {
-		// 			if (response.status == 'success') {
-		// 				alert('Data berhasil diperbarui'); // Tampilkan pesan sukses
-		// 				// Lakukan tindakan lain jika perlu, misalnya perbarui tampilan
-		// 			} else {
-		// 				alert('Gagal memperbarui data'); // Tampilkan pesan gagal
-		// 			}
-		// 		},
-		// 		error: function(xhr, status, error) {
-		// 			console.log(xhr.responseText); // Debug: Log pesan kesalahan ke konsol browser
-		// 			alert('Terjadi kesalahan saat mengirim data'); // Tampilkan pesan kesalahan
-		// 		}
-		// 	});
-		// }
-
+		function TaxEdit() {
+			$.ajax({
+				url: URL_TAX,
+				type: 'POST',
+				data: $('#form-input-tax').serialize(),
+				dataType: 'json',
+				success: function(response) {
+					if (response.status == 'success') {
+						// Notifikasi atau tindakan setelah berhasil disimpan
+						alert('Data berhasil disimpan');
+					} else if (response.status == 'failed') {
+						// Notifikasi atau tindakan jika gagal menyimpan
+						alert('Gagal menyimpan data');
+					} else if (response.status == 'unchanged') {
+						// Notifikasi jika data tidak berubah
+						alert('Data tidak berubah');
+					}
+				},
+				error: function(xhr, status, error) {
+					// Penanganan kesalahan
+					console.log(xhr.responseText);
+					alert('Terjadi kesalahan saat mengirim data');
+				}
+			});
+		}
 
 		$('.btn-edit-tax').click(function(event) {
 			event.preventDefault();
@@ -1320,7 +1444,212 @@
 				var aksi = 'deleteAll';
 				deleteTax(URL_TAX,aksi,checked);
 			});
-	});
+	
+
+
+
+			//
+			//SERVICE CHARGE
+			//
+
+			var URL_SERVICE 	  = 'process/P_service.php';
+			var checked   = [];
+			
+			function getService(url) {
+				$.ajax({
+					url 	: url,
+					type 	: 'POST',
+					data 	: {'aksi':'getService'},
+					dataType: 'html',
+					success	: function(response){
+						var data =  $.parseJSON(response);
+						
+						if(data.status == 'success') {
+							$('#service-type-table').html(data.output);
+						}
+						else 
+						{
+							$('#service-type-table').html(data.output);
+						}
+					}
+				})	
+			}
+
+			//var URL_TAX = "process/P_tax.php";
+			
+			$(document).ready(function() {
+				// Tempatkan kode JavaScript di sini
+				$('#btn-add-service-charge').click(function(event) {
+					event.preventDefault();
+					$('#aksi').val('addService');
+					ServiceAdd(); // Panggil fungsi TaxAdd saat tombol ditekan
+				});
+			});
+
+			function ServiceAdd() {
+				$.ajax({
+					url: URL_SERVICE,
+					type: 'POST',
+					data: $('#form-input-service').serialize(),
+					// alert(form-input-service);
+					//console.log($('#form-input-service').serialize());
+					dataType: 'json',
+					success: function(response) {
+						if (response.status == 'success') {
+							//notification(data.msg,'right top','success','notifSuccess',5000); // Pastikan penutup kurung lengkap di sini
+							alert('Data berhasil disimpan');
+						} else {
+							notification(data.msg,'right top','danger','notifDanger',5000); // Pastikan penutup kurung lengkap di sini
+							alert('Gagal menyimpan data');
+						}
+					},
+					error: function(xhr, status, error) {
+						// Fungsi yang dipanggil jika terjadi kesalahan pada AJAX request
+						console.log(xhr.responseText); // Debug: Log pesan kesalahan ke konsol browser
+						alert('Terjadi kesalahan saat mengirim data');
+					}
+					
+				});
+			}
+
+
+
+
+			//getTax(url);
+			$('#btn-add-service').click(function(event) {
+
+				//serviceAdd(url);
+				// alert("muncul");
+				event.preventDefault();
+				//$('#service-column-view').addClass('d-none');
+				//$('#view-service').removeClass('d-none');
+				// var url = 'process/P_service.php';
+
+				// Mengatur nilai-nilai elemen input
+				$('#aksi_service').val('addService');
+				//$('#aksi').val('addTax');
+
+				//$('#tax_aksi').val('`addTax`');
+				$('#persentage').val(persentage);
+				$('#date_from').val(date_from);
+				$('#date_till').val(date_till);
+				//$('#stat').val(stat);
+				$('input[name="stat"][value="enable"]').prop('checked', true); // Memilih radio button "Enable" secara default
+
+				// Menampilkan form input tax dan menyembunyikan elemen lain
+				$('#table-filter').addClass('d-none');
+				$('#form-input-service').removeClass('d-none');
+				$('.btn-submit-add').removeClass('d-none');
+				$('#btn-submit').text('Save');
+				});
+
+
+			//EDIT TAX
+			function ServiceEdit() {
+				$.ajax({
+					url: URL_SERVICE,
+					type: 'POST',
+					data: $('#form-input-service').serialize(),
+					dataType: 'json',
+					success: function(response) {
+						if (response.status == 'success') {
+							// Notifikasi atau tindakan setelah berhasil disimpan
+							alert('Data berhasil disimpan');
+						} else if (response.status == 'failed') {
+							// Notifikasi atau tindakan jika gagal menyimpan
+							alert('Gagal menyimpan data');
+						} else if (response.status == 'unchanged') {
+							// Notifikasi jika data tidak berubah
+							alert('Data tidak berubah');
+						}
+					},
+					error: function(xhr, status, error) {
+						// Penanganan kesalahan
+						console.log(xhr.responseText);
+						alert('Terjadi kesalahan saat mengirim data');
+					}
+				});
+			}
+
+			$('.btn-edit-service').click(function(event) {
+				event.preventDefault();
+				var val = $(this).attr('data-id');
+				var split = val.split('&');
+				var id_service = split[0];
+				var persentage = split[1];
+				var date_from = split[2];
+				var date_till = split[3];
+				var stat = split[4];
+
+				// Mengisi nilai form dengan data yang dipilih untuk diedit
+				$('#aksi').val('editService');
+				$('#id_service').val(id_service);
+				$('#persentage').val(persentage);
+				$('#date_from').val(date_from);
+				$('#date_till').val(date_till);
+				$('input[name="stat"][value="' + stat + '"]').prop('checked', true);
+
+				// Menampilkan form input tax dan menyembunyikan elemen lain
+				$('#table-filter').addClass('d-none');
+				$('#form-input-service').removeClass('d-none');
+				$('#btn-submit').text('Update');
+				
+			});
+
+				$('#btn-cancel').click(function(event) {
+					$('#table-filter').removeClass('d-none');
+					$('#form-input-service').addClass('d-none');
+				});
+
+
+				$('#btn_delete').on('show.bs.modal', function (e){ 
+						var id = $(e.relatedTarget).attr('data-id');
+						$('#modal-delete').find('#id').val(id);
+						$('#modal-delete').find('#show-msg').html('');
+				});	
+
+
+				//DELETE SERVICE
+				function deleteService(url,aksi,id)
+					{
+						loading("Please wait to delete data ...");
+						$.ajax({
+							url: URL_SERVICE,
+							type: 'POST',
+							data: { 'aksi': aksi, 'id': id },
+							dataType: 'json',
+							success: function(response) {
+								if (response.status == 'success') {
+									$('body').loadingModal('destroy');
+									// Refresh halaman atau lakukan tindakan lain setelah penghapusan berhasil
+									location.reload(); // Contoh: refresh halaman setelah penghapusan berhasil
+								} else {
+									$('body').loadingModal('destroy');
+									alert('Gagal menghapus data: ' + response.msg);
+								}
+							},
+						});
+					}
+					
+				$('#btn-modal-delete-service').click(function(event) {
+					event.preventDefault()
+					var id 		= $('#modal-delete-srv').find('#ids').val();
+					var aksi 	= 'deleteService';
+					deleteTax(URL_SERVICE,aksi,id);
+				});
+
+
+				$('#btn_delete_all_yes').click(function(event) {
+					event.preventDefault();
+					var aksi = 'deleteAll';
+					deleteTax(URL_SERVICE,aksi,checked);
+				});
+
+
+
+
+
+		});
 
 	
 </script>

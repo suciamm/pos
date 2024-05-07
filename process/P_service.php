@@ -7,8 +7,8 @@ ini_set('display_errors', 1);
 //include_once '../include/paging.php';	
 //include_once '../model/M_tax.php'; // Ganti path sesuai dengan struktur direktori yang benar
 //$db 	= direct_model('M_tax');
-include_once '../model/M_tax.php';
-$db = new M_tax(); // Inisialisasi objek M_tax
+include_once '../model/M_service.php';
+$db = new M_service(); // Inisialisasi objek M_tax
 // $aksi 	= $_POST['aksi'];
 $aksi = $_POST['aksi'] ?? '';
 // echo $aksi;die;
@@ -19,15 +19,15 @@ $response = array();
 */ 
 
 
-	if ($aksi == 'addTax') {
+	if ($aksi == 'addService') {
 		$persentage = $_POST['persentage'] ?? '';
 		$date_from = $_POST['date_from'] ?? '';
 		$date_till = $_POST['date_till'] ?? '';
 		$stat = $_POST['stat'] ?? '';
 
 		
-		// Panggil fungsi addTax
-		$result = $db->addTax($persentage, $date_from, $date_till, $stat);
+		// Panggil fungsi addService
+		$result = $db->addService($persentage, $date_from, $date_till, $stat);
 
 		if ($result > 0) {
 			$response['status'] = 'success';
@@ -37,16 +37,16 @@ $response = array();
 			$response['msg'] = 'Gagal menyimpan data';
 		}
 	} 
-	else if ($aksi == 'editTax') {
+	else if ($aksi == 'editService') {
 		// Ambil data dari POST
-		$id_tax = $_POST['id_tax'] ?? '';
+		$id_service = $_POST['id_service'] ?? '';
 		$persentage = $_POST['persentage'] ?? '';
 		$date_from = $_POST['date_from'] ?? '';
 		$date_till = $_POST['date_till'] ?? '';
 		$stat = $_POST['stat'] ?? '';
 	
-		// Panggil fungsi editTax untuk memperbarui data
-		$result = $db->editTax($id_tax, $persentage, $date_from, $date_till, $stat);
+		// Panggil fungsi editService untuk memperbarui data
+		$result = $db->editService($id_service, $persentage, $date_from, $date_till, $stat);
 	
 		if ($result > 0) {
 			$response['status'] = 'success';
@@ -64,12 +64,12 @@ $response = array();
 	
 	
 
-	else if ($aksi == 'deleteTax') {
-		$id_tax = $_POST['id'] ?? '';
+	else if ($aksi == 'deleteService') {
+		$id_service = $_POST['id_srv'] ?? '';
 	
-		if (!empty($id_tax)) {
+		if (!empty($id_service)) {
 			
-			$result = $db->deleteTax($id_tax);
+			$result = $db->deleteService($id_service);
 	
 			if ($result > 0) {
 				$response['status'] = 'success';
@@ -91,12 +91,12 @@ $response = array();
 
 	else if($aksi =='deleteAll')
 	{
-		$id_tax 	= $_POST['id_tax'];
-		$result = count($id_tax);
+		$id_service 	= $_POST['id_service'];
+		$result = count($id_service);
 		if($result > 0 )
 		{
-			foreach ($id_tax as $key => $id_tax) {
-				$db->deleteTax($id_tax);
+			foreach ($id_service as $key => $id_service) {
+				$db->deleteService($id_service);
 			}
 
 			$response['status'] = 'success';
