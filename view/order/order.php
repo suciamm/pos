@@ -1,8 +1,13 @@
 <?php 
 $db  			= model('M_sales');
 $getMenu 		= $db->getMenu();
-$getDiscount=$db->getDiscount("2024-04-24");
-// echo $getDiscount['data']['promo_id'];
+$db				= model('M_promo');
+// $getDiscount    =$db->getDiscount();
+ //echo $getDiscount['data']['promo_id'];
+$db = model('M_tax');
+$getTax = $db->getTax();
+
+
 ?>
 
 
@@ -149,6 +154,9 @@ $getDiscount=$db->getDiscount("2024-04-24");
 							<span class="col-lg-6 text-right price_discount">Rp 0</span>
 							<span class="col-lg-6">Tax</span>
 							<span class="col-lg-6 text-right price_tax">Rp 0</span>
+							<span class="col-lg-6">Service charge</span>
+							<span class="col-lg-6 text-right price_service">Rp 0</span>
+
 							<span class="col-lg-12"><hr></span>
 
 							<span class="col-6"><h5>TOTAL</h5></span>
@@ -768,7 +776,8 @@ $getDiscount=$db->getDiscount("2024-04-24");
 						$('.total_item-change').text(total_item);						
 						$('.hide-total-change').val(total);
 				}
-				else {
+				else 
+				{
 					$('#tbody-change').html(data.output);
 				}
 			}
@@ -971,36 +980,51 @@ $getDiscount=$db->getDiscount("2024-04-24");
 					sTotal  = $('.total_item').text(gTotal+1);
 					tr 		= $('.table-order tr').length;					
 					var gPrice_discount = toInteger($('.price_discount').text());
-					var dc = 0;
+					// var dc = 0;
 
-						$.ajax({
-							type: "POST",
-							url: url,
-							async :false,
-							data: {
-								'aksi': "getDiscount",
-								'product_code' : product_code
-							},
-							success: function(data) {
-									var hasil = $.parseJSON(data)
-									console.log(hasil);
-									if(hasil.discount){
-										var discount=priceInt*(hasil.discount/100);
-										if(gPrice_discount){
-											discount=gPrice_discount+discount;
-											// dc += parseInt(discount);
-										}
-										$('.price_discount').text(rupiah(discount));
-										//  dc = discount
+						// $.ajax({
+						// 	type: "POST",
+						// 	url: url,
+						// 	async :false,
+						// 	data: {
+						// 		'aksi': "getDiscount",
+						// 		'product_code' : product_code
+						// 	},
+						// 	success: function(data) {
+						// 			//var hasil = $.parseJSON(data)
+						// 			//console.log(hasil);
+						// 			if(hasil.discount){
+						// 				var discount=priceInt*(hasil.discount/100);
+						// 				if(gPrice_discount){
+						// 					discount=gPrice_discount+discount;
+						// 					// dc += parseInt(discount);
+						// 				}
+						// 				$('.price_discount').text(rupiah(discount));
+						// 				//  dc = discount
 										
-									}
-							}
-						});
+						// 			}
+						// 	}
+						// });
 						// alert(dc);
 					// disc = $
 					// alert(discount);
 
 						//add row table
+
+
+						function Product(url,val) {
+							$.ajax({
+								url 	: url,
+								type 	: 'POST',
+								data 	: {'product':val,'aksi':'getDiscount'},
+								dataType: 'html',
+								success: function(response){
+									var data =  $.parseJSON(response);
+									$('#list-product').html(data.output);				
+								}
+							})	
+						}
+											
 						if(tr < 1) 
 						{ 
 							$('.table-order').html(addRow(image,product,price,product_code));
@@ -1466,9 +1490,9 @@ $getDiscount=$db->getDiscount("2024-04-24");
 					}
 				});
 
-$('.price_subtotal').text(rupiah(subtotal));
-$('.price_total').text(rupiah(total));
-$('.hide-total').val(total);
+				$('.price_subtotal').text(rupiah(subtotal));
+				$('.price_total').text(rupiah(total));
+				$('.hide-total').val(total);
 
 				
 			});

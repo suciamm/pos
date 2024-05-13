@@ -65,7 +65,7 @@ $response = array();
 	
 
 	else if ($aksi == 'deleteService') {
-		$id_service = $_POST['id_srv'] ?? '';
+		$id_service = $_POST['id'] ?? '';
 	
 		if (!empty($id_service)) {
 			

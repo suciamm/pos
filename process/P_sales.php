@@ -35,7 +35,7 @@ $aksi 	= $_POST['aksi'];
 		echo json_encode($response); 
 	}
 
-	else if($aksi == 'getDiscount')
+	else if($aksi == 'getDiscount2')
 	{	
 		$product_code 	= $_POST['product_code'];
 		// $query= "SELECT * from m_product where product_code='$product_code'";

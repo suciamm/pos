@@ -37,10 +37,6 @@ class M_promo_detail extends Conn
 				return $sql;
 	    }
 
-	
-
-
-
 	/* 
 	  * ACTION FORM
 	*/

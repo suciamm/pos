@@ -49,8 +49,8 @@
 
 	<div class="col-8 p-0">
 		<div class="col-12 card p-0 pt-4 h-550">
-			<div class="col-12 menu-setting d-none" id="setting-payment">
 			<!--payment type table-->
+			<div class="col-12 menu-setting d-none" id="setting-payment">
 				<div class="row mt-0 pt-0" id="payment-type-view">
 					<div class="row col-12 pl-5">
 						<ul class="breadcrumb action-bar pt-0 pb-4 fs-14">				
@@ -99,8 +99,8 @@
 				</div>
 			</div>
 
+			<!--table column table-->
 			<div class="col-12 menu-setting d-none" id="setting-table">
-				<!--table column table-->
 				<div class="row mt-0 pt-0" id="table-column-view">
 					<div class="row col-12 pl-5">
 						<ul class="breadcrumb action-bar pt-0 pb-4 fs-14">				
@@ -200,9 +200,9 @@
 			</div>	
 
 			<!-- table tax  -->
-			<!-- <div> -->
-				<div class="p-2 bg-dark pt-3 pb-3 menu-setting d-none" id="setting-tax">
-					<div class="row"  id="tax-column-view">
+			<div class="col-12 menu-setting d-none" id="setting-tax">
+				<div class="p-2 bg-dark pt-3 pb-3"  id="tax-column-view">
+					<div class="row">
 						<div class="col-6">
 							<ul class="breadcrumb action-bar breadcrumb-menu">
 								<li class="mr-4">
@@ -354,14 +354,14 @@
 						</table>
 					</div>
 				</div>
-			<!-- </div> -->
-		<!-- close tax -->
+			</div>
+			<!-- close tax -->
 			
 
 		<!-- table Service Charge -->
-			<!-- <div> -->
-			<div class="p-0 bg-dark pt-3 pb-3 menu-setting d-none" id="setting-service">
-					<div class="row"  id="service-column-view">
+			<div class="col-12 menu-setting d-none" id="setting-service">
+				<div class="p-2 bg-dark pt-3 pb-3" id="service-column-view">
+					<div class="row">
 						<div class="col-6">
 							<ul class="breadcrumb action-bar breadcrumb-menu">
 								<li class="mr-4">
@@ -376,7 +376,8 @@
 
 						<div class="col-6">
 							<ul class="breadcrumb bg-none pull-right">
-								<li class="breadcrumb-item"><b class="text-white">SERVICE CHARGE</b></li>							</ul>
+								<li class="breadcrumb-item"><b class="text-white">SERVICE CHARGE</b></li>							
+							</ul>
 						</div>
 						
 					</div>
@@ -384,7 +385,7 @@
 
 				<!-- service form -->
 				<!-- <form class="row pb-2 bg-green " id="form-input-tax" method="POST" enctype="multipart/form-data" action="P_tax.php"> -->
-				<form class="row d-none pb-2 bg-white " id="form-input-service" method="POST" enctype="multipart/form-data">
+				<form class="row d-none pb-2 bg-white" id="form-input-service" method="POST" enctype="multipart/form-data">
 					<!-- Isi form input di sini -->
 					<span class="col-12 pb-2">
 						<span class="pointer" id="btn-cancel"><i class="fa fa-close pointer btn-form-service-cancel"></i> Close </span>
@@ -449,7 +450,7 @@
 						</div>
 					</span>						
 						<span class="col-2 pl-1">
-						<button id="btn-add-service-charge" class="btn btn-primary btn-form-service-add btn-submit-add">Submit</button>
+						<button id="btn-add-service-charge" class="btn btn-primary btn-form-service-add btn-submit-add-service">Submit</button>
 
 					</span>
 				</form>
@@ -492,15 +493,15 @@
 										<td><?php echo $view['stat']; ?></td>
 										<td>
 											
-											<!-- <a href="index.php?page=p_tax&sub=detail&id=<?php echo base64_encode($view['id_tax']); ?>&s=<?php echo base64_encode($view['date_from']); ?>&e=<?php echo base64_encode($view['date_till']); ?>"> -->
+											<!-- <a href="index.php?page=p_tax&sub=detail&id=<?php echo base64_encode($view['id_service']); ?>&s=<?php echo base64_encode($view['date_from']); ?>&e=<?php echo base64_encode($view['date_till']); ?>"> -->
 												<!-- Detail  -->
 											<!-- </a> -->
 											|
-											<a href="#" class="btn-edit-tax" data-id="<?php echo $view['id_service'].'&'.$view['persentage'].'&'.$view['date_from'].'&'.$view['date_till'].'&'.$view['stat'] ?>">
+											<a href="#" class="btn-edit-service" data-id="<?php echo $view['id_service'].'&'.$view['persentage'].'&'.$view['date_from'].'&'.$view['date_till'].'&'.$view['stat'] ?>">
 												<i class="fa fa-pencil mr-1"></i>
 											</a>
 											|
-											<a href="#" data-toggle="modal" data-target="#btn_delete" data-id="<?php echo $view['id_service']; ?>">
+											<a href="#" data-toggle="modal" data-target="#btn_delete_service" data-id="<?php echo $view['id_service']; ?>">
 												<i class="fa fa-trash"></i>
 											</a>
 
@@ -511,7 +512,7 @@
 						</table>
 					</div>
 				</div>
-			<!-- </div> -->
+			</div>
 
 
 
@@ -634,7 +635,31 @@
 		</div>
 	</div>
 
+<!-- modal service charge -->
+<!--modal delete-->
+<div class="modal fade" id="btn_delete_service" data-backdrop="static">
+		<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+				<div class="modal-header">
+				<h4 class="modal-title">Delete data</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>			
 
+				<div id="modal-delete-service">
+					<div class="modal-body">
+						<h6>Are you sure delete this data</h6>				
+						<input type="hidden" name="id" id="id">
+						<div class="row col-12" id="show-msg"></div>
+					</div>
+				
+					<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary" id="btn-modal-delete-service">Yes</button>		
+					</div>
+				</div>
+		</div>
+		</div>
+	</div>
 
 
 <script type="text/javascript">
@@ -788,6 +813,7 @@
 		var URL_PROFILE = 'process/P_profile.php';
 		var URL_TABLE 	= 'process/P_table.php';
 		var URL_PAYMENT = 'process/P_payment_type.php';
+		var URL_SERVICE = 'process/P_service.php'
 		
 		var PROFILEROW 	= $('#profileRow').val();
 
@@ -1475,7 +1501,7 @@
 				})	
 			}
 
-			//var URL_TAX = "process/P_tax.php";
+			
 			
 			$(document).ready(function() {
 				// Tempatkan kode JavaScript di sini
@@ -1515,7 +1541,7 @@
 
 
 
-			//getTax(url);
+			
 			$('#btn-add-service').click(function(event) {
 
 				//serviceAdd(url);
@@ -1539,12 +1565,12 @@
 				// Menampilkan form input tax dan menyembunyikan elemen lain
 				$('#table-filter').addClass('d-none');
 				$('#form-input-service').removeClass('d-none');
-				$('.btn-submit-add').removeClass('d-none');
+				$('.btn-submit-add-service').removeClass('d-none');
 				$('#btn-submit').text('Save');
 				});
 
 
-			//EDIT TAX
+			//EDIT SERVICE
 			function ServiceEdit() {
 				$.ajax({
 					url: URL_SERVICE,
@@ -1602,17 +1628,17 @@
 				});
 
 
-				$('#btn_delete').on('show.bs.modal', function (e){ 
+				$('#btn_delete_service').on('show.bs.modal', function (e){ 
 						var id = $(e.relatedTarget).attr('data-id');
-						$('#modal-delete').find('#id').val(id);
-						$('#modal-delete').find('#show-msg').html('');
+						$('#modal-delete-service').find('#id').val(id);
+						$('#modal-delete-service').find('#show-msg').html('');
 				});	
 
 
 				//DELETE SERVICE
 				function deleteService(url,aksi,id)
 					{
-						loading("Please wait to delete data ...");
+						loading("Please wait to delete data service ...");
 						$.ajax({
 							url: URL_SERVICE,
 							type: 'POST',
@@ -1633,16 +1659,16 @@
 					
 				$('#btn-modal-delete-service').click(function(event) {
 					event.preventDefault()
-					var id 		= $('#modal-delete-srv').find('#ids').val();
+					var id 		= $('#modal-delete-service').find('#id').val();
 					var aksi 	= 'deleteService';
-					deleteTax(URL_SERVICE,aksi,id);
+					deleteService(URL_SERVICE,aksi,id);
 				});
 
 
 				$('#btn_delete_all_yes').click(function(event) {
 					event.preventDefault();
 					var aksi = 'deleteAll';
-					deleteTax(URL_SERVICE,aksi,checked);
+					deleteService(URL_SERVICE,aksi,checked);
 				});
 
 

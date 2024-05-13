@@ -457,7 +457,7 @@
 			//DELETE TAX
 			function deleteTax(url,aksi,id)
 				{
-					loading("Please wait to delete data ...");
+					// loading("Please wait to delete data ...");
 					$.ajax({
 						url: URL_TAX,
 						type: 'POST',

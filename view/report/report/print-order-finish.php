@@ -304,6 +304,8 @@ include_once '../include/paging.php';
 		$printer -> text(addSpaces('', 20) .addSpaces('TOTAL ITEM ', 10).addSpaces(': ', 3) .addSpaces($totalQty,10)."\n");
 		$printer -> text(addSpaces('', 20) .addSpaces('GRAND TOTAL', 11).addSpaces(': ', 3) .addSpaces(rupiah($grandTotal),10)."\n");
 		$printer -> text(addSpaces('', 20) .addSpaces('DISCOUNT', 11).addSpaces(': ', 3) .addSpaces(rupiah($discountTotal),10)."\n");
+		// $printer -> text(addSpaces('', 20) .addSpaces('TAX', 11).addSpaces(': ', 3) .addSpaces(rupiah($TAXTotal),10)."\n");
+		// $printer -> text(addSpaces('', 20) .addSpaces('SERVICE', 11).addSpaces(': ', 3) .addSpaces(rupiah($SERVICETotal),10)."\n");
 		$printer -> text(addSpaces('', 20) .addSpaces('TOTAL', 11).addSpaces(': ', 3) .addSpaces(rupiah($total),10)."\n");
 
 		if($payment == 'cash') {

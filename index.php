@@ -121,7 +121,8 @@
 
 
 				<li <?php if($page == 'report') { echo 'class="active"';} ?>>
-				<a href="<?php echo page('report'); ?>"> <i class="fa fa-bar-chart"></i>Report</a>
+				<a href="index.php?page=report">
+				<i class="fa fa-bar-chart"></i>Report</a>
 				</li>				
 
 				<li>
