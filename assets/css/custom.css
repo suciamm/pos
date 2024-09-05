@@ -504,31 +504,140 @@
 
 
 
-/*
- *PAGE SETTINGS
-*/
-	.setting-content {		
-		font-size: 14px;
-	}
+	/*
+	*PAGE SETTINGS
+	*/
+		.setting-content {		
+			font-size: 14px;
+		}
 
-	.setting-content:hover {
-		background: #f3f3f3;
-		cursor: pointer;
-		border-right: 3px solid #f74d18;
-	}
+		.setting-content:hover {
+			background: #f3f3f3;
+			cursor: pointer;
+			border-right: 3px solid #f74d18;
+		}
 
-	.setting-active {
-		background: #f3f3f3;
-		border-right: 3px solid #f74d18;
-	}
+		.setting-active {
+			background: #f3f3f3;
+			border-right: 3px solid #f74d18;
+		}
 
-	.setting-menu {
-		padding: 15px 0px 15px 0px;
-		border-bottom: 1px solid rgba(0, 0, 0, 0.1); 
-	}
+		.setting-menu {
+			padding: 15px 0px 15px 0px;
+			border-bottom: 1px solid rgba(0, 0, 0, 0.1); 
+		}
 
 	
 
+	/* PAGE REPORT */
+		.form-report-page body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background-color: #f0f2f5;
+		}
+
+		.form-report-page form {
+			width: 100%;
+			max-width: 600px;
+			padding: 20px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			background-color: #f9f9f9;
+			box-sizing: border-box;
+		}
+
+		.form-report-page p {
+			margin-bottom: 5px;
+		}
+
+		.form-report-page input[type="date"] {
+			width: calc(100% - 24px);
+			padding: 8px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			box-sizing: border-box;
+		}
+
+		.form-report-page .btn-secondary {
+			border-radius: 4px;
+			cursor: pointer;
+			padding: 8px;
+			background-color: #ccc;
+			border: 1px solid #ccc;
+		}
+
+		.form-report-page .btn-secondary:hover {
+			background-color: #bbb;
+		}
+
+		.form-report-page button {
+			width: 100%;
+			padding: 10px;
+			margin-top: 10px;
+			background-color: #007bff;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.form-report-page button:hover {
+			background-color: #0056b3;
+		}
+
+		.form-report-page #resultContainer {
+			display: none;
+			width: 90%;
+			max-width: 900px;
+			margin: 20px auto;
+			padding: 20px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			background-color: #f9f9f9;
+			overflow: auto;
+			max-height: 80vh;
+		}
+
+		.form-report-page table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.form-report-page th, .form-report-page td {
+			padding: 8px;
+			text-align: left;
+			border-bottom: 1px solid #ddd;
+		}
+
+		.form-report-page th {
+			background-color: #f2f2f2;
+		}
+
+		.form-report-page .download-button {
+			display: inline-block;
+			margin: 20px 10px 0 0;
+			padding: 10px 20px;
+			background-color: #28a745;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.form-report-page .download-button:hover {
+			background-color: #218838;
+		}
+
+		.form-report-page .btndld {
+			display: flex;
+			justify-content: flex-start;
+			margin-bottom: 20px;
+		}
 
 
 

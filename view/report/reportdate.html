@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report Form</title>
+    <link rel="stylesheet" href="path/to/your/styles.css">
+</head>
+<body>
+
+    <form id="reportForm" method="POST" action="#">
+        <div>   
+            <p>Dari Tanggal</p>
+            <input type="date" class="form-control" name="date_from" id="date_from" autocomplete="off" placeholder="Dari Tanggal">
+        </div>
+        <div>
+            <p>Sampai Tanggal</p>
+            <input type="date" class="form-control" name="date_till" id="date_till" autocomplete="off" placeholder="Sampai Tanggal">
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var form = document.getElementById("reportForm");
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                var date_from = document.getElementById("date_from").value;
+                var date_till = document.getElementById("date_till").value;
+
+                var url = 'report-sh.php?date_from=' + date_from + '&date_till=' + date_till;
+                window.open(url, '_blank');
+            });
+        });
+    </script>
+
+</body>
+</html>

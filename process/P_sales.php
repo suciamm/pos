@@ -35,18 +35,6 @@ $aksi 	= $_POST['aksi'];
 		echo json_encode($response); 
 	}
 
-	else if($aksi == 'getDiscount2')
-	{	
-		$product_code 	= $_POST['product_code'];
-		// $query= "SELECT * from m_product where product_code='$product_code'";
-		$result 	= $db->getDiscount2($product_code);
-		// $result = $this->db->query($query);
-        // $data   = $result->fetch(PDO::FETCH_ASSOC);
-		
-
-		echo json_encode($result); 
-	}
-
 
 	else if($aksi == 'getAllProduct')
 	{
@@ -256,7 +244,7 @@ $aksi 	= $_POST['aksi'];
 		$data 		= $result['fetch'];
 		$row 		= $result['row'];
 
-		$discount	= 10;
+		$discount	= 0;
 		$subtotal 	= [];
 		$total 		= [];
 		$total_item = [];
@@ -280,7 +268,7 @@ $aksi 	= $_POST['aksi'];
 											<div class="col-lg-3">
 											<img src="image/upload/'.$view['image'].'" alt="..." class="img-fluid rounded-circle">
 											</div>
-											<div class="col-md-7 p-0 m-0">
+											<div class="col-md-7 p-0 m-0"">
 											<span class="product_item text-bold">'.$view['product'].'</span><br>
 											<span class="price_item">Rp '.rupiah($view['price']).'</span>
 											</div>						
@@ -566,103 +554,46 @@ $aksi 	= $_POST['aksi'];
 	}
 
 
-	else if($aksi == 'paymentNonCash') 
-	{
+	else if ($aksi == 'paymentNonCash') {
 		$sales_code = $_POST['sales_code'];
 		$id_payment = $_POST['id_payment'];
-		$sales 		= $db->getSales_Limit_BySales_code($sales_code);
-		$result 	= $sales['row'];
-
-		if($result > 0) 
-		{
-			//detail order
-			$detail 	= $db->getSales_detail($sales_code);
-			$qty 		= [];
-			$total 		= $sales['fetch']['total'];
-			$date 		= $sales['fetch']['date'];			
-
-			//check discount
-			$discount    = [];
-			$getDiscount = $db->getDiscount($date);
-			$row 		 = $getDiscount['row'];
-			$data 		 = $getDiscount['data'];
-			$promo_id 	 = $data['promo_id'];
-
-			if($row > 0) // jika ada promo
-			{					
-					foreach ($detail['fetch'] as $view)
-					{
-						$qty[] 		= $view['qty'];						
-
-						//detail discount
-						$promoDetail = $db->getDiscountDetail($promo_id);
-						$promoData 	 = $promoDetail['data'];
-						$promoRow 	 = $promoDetail['row'];
-
-						if($promoRow > 0) //jika ada detail promo
-						{
-							foreach ($promoData as $promo)
-							{
-								$promo_type 	= $promo['promo_type'];
-								$promo_payment 	= $promo['promo_payment'];
-
-								if($promo_payment  == 'all' && $promo_type == 'all') {
-								$discount[] 		= $view['subtotal'] * ($promo['discount'] / 100); 
-								}
-
-								else if($promo_payment 	== 'all' && $promo_type == 'custom') {
-										if($view['id_product'] == $promo['id_product']){
-										$pSale 					= $db->getPriceDiscount($view['product_code'],$view['sales_code']);
-										$discount[] 			= $pSale['discount_total'];
-										}
-								}
-
-								else if($promo_payment == 'custom' && $promo_type == 'custom') {
-										if($id_payment == $promo['id_payment'] && $view['id_product'] == $promo['id_product']){
-										$pSale 			= $db->getPriceDiscount($view['product_code'],$view['sales_code']);
-										$discount[] 	= $pSale['discount_total'];
-										}
-								}
-
-								else if($promo_payment == 'custom' && $promo_type == 'all'){
-										if($id_payment == $promo['id_payment']) {
-										$discount[] 	= $view['subtotal'] * ($promo['discount'] / 100); 
-										}
-								}
-							}
-						}
-						else { $discount[] = NULL;}
-					}
+	
+		// Debugging: Log received POST data
+		error_log('Received Sales Code: ' . $sales_code);
+		error_log('Received ID Payment: ' . $id_payment);
+	
+		try {
+			$salesData = $salesModel->getSales_Limit_BySales_code($sales_code);
+			if ($salesData['status'] === 'success') {
+				$response = array(
+					'status' => 'success',
+					'aksi' => $aksi,
+					'msg' => 'Data exists',
+					'sales_code' => $sales_code,
+					'total_items' => $salesData['total_items'],
+					'grand_total' => 'Rp ' . number_format($salesData['grand_total'], 2, ',', '.'),
+					'discount' => 'Rp ' . number_format($salesData['discount'], 2, ',', '.'),
+					'tax' => 'Rp ' . number_format($salesData['tax'], 2, ',', '.'),
+					'service_charge' => 'Rp ' . number_format($salesData['service_charge'], 2, ',', '.'),
+					'total' => 'Rp ' . number_format($salesData['total'], 2, ',', '.')
+				);
+			} else {
+				$response['msg'] = 'No data found for sales code';
 			}
-			else 
-			{
-					foreach ($detail['fetch'] as $view) {
-					$qty[] 	= $view['qty'];
-					}					
-			}
-			$response['non-cash'] 		= $discount;			
-			$qty 		= array_sum($qty);			
-			$discount 	= array_sum($discount);
-			
-			
-			$response['sales_code']	= $sales_code;
-			$response['qty'] 		= $qty;
-			$response['grand_total']= 'Rp '.rupiah($total);
-			$response['discount'] 	= 'Rp '.rupiah($discount);
-			$response['total'] 		= 'Rp '.rupiah($total-$discount);
-
-			$response['status'] = 'success';
-			$response['aksi'] 	= $aksi;
-			$response['msg'] 	= 'data is exist';
+		
+		} catch (Exception $e) {
+			// Log error
+			error_log('Exception caught: ' . $e->getMessage());
+			$response = array(
+				'status' => 'failed',
+				'msg' => 'Error occurred: ' . $e->getMessage()
+			);
 		}
-		else 
-		{
-			$response['status'] = 'failed';
-			$response['aksi'] 	= $aksi;
-			$response['msg'] 	= 'data not found';
-		}
+	
 		echo json_encode($response);
 	}
+	
+
 
 
 	else if($aksi == 'paymentFinish')

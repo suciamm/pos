@@ -1,4 +1,4 @@
-<?php
+  <?php
 	include_once 'include/paging.php';
 	session_start();
 	date_default_timezone_set("Asia/Jakarta");
@@ -119,7 +119,6 @@
 				<a href="index.php?page=promo&sub=promo"> <i class="icon-padnote"></i>Promo</a>
 				</li>
 
-
 				<li <?php if($page == 'report') { echo 'class="active"';} ?>>
 				<a href="index.php?page=report">
 				<i class="fa fa-bar-chart"></i>Report</a>
@@ -136,7 +135,6 @@
 				</li>
 				<li><a href="login.html">Login page </a></li>
 			</ul>
-			
 		</nav>
 
 		<div class="content-inner active">
@@ -173,7 +171,7 @@
 			</header>
 		
 		<?php 
-			switch ($page) {
+			switch ($page) { 
 					case ('home'):
 						include_once 'view/home/home.php';;
 						break;
@@ -207,6 +205,7 @@
 						break;	
 					case ('report'):
 						include_once 'view/report/report.php';
+						// include_once 'view/report/reportdate.html';
 						break;
 
 					case ('order'):

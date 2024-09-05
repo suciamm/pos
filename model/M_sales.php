@@ -6,7 +6,6 @@ include_once 'Conn.php';
  */
 class M_sales extends Conn
 {
-    
 
     /*
     menu
@@ -20,9 +19,6 @@ class M_sales extends Conn
     	$sql['data'] = $fetch;
     	return $sql;
     }
-
-
-
     
     /*
 	 function untuk segala kebutuhan tentang produk
@@ -38,7 +34,6 @@ class M_sales extends Conn
     	$sql['row']  = $row;
     	return $sql;
     }
-
 
 
     public function getAllProduct()
@@ -68,7 +63,6 @@ class M_sales extends Conn
     }
 
 
-
     public function getProductByMenu($menu)
     {
     	$query = "SELECT 
@@ -93,8 +87,6 @@ class M_sales extends Conn
     	$sql['row']  = $result->rowCount();
     	return $sql;
     }
-
-
 
 
 
@@ -140,18 +132,90 @@ class M_sales extends Conn
 
 
 
-    public function getSales_Limit_BySales_code($sales_code)
-    {
-        $query  = "SELECT * FROM t_sales WHERE sales_code = '$sales_code' AND status = 'N'";
-        $result = $this->db->query($query);
-        $fetch  = $result->fetch(PDO::FETCH_ASSOC);
-        $row    = $result->rowCount();
+    // public function getSales_Limit_BySales_code($sales_code)
+    // {
+    //     $query  = "SELECT * FROM t_sales WHERE sales_code = '$sales_code' AND status = 'N'";
+    //     $result = $this->db->query($query);
+    //     $fetch  = $result->fetch(PDO::FETCH_ASSOC);
+    //     $row    = $result->rowCount();
 
-        $sql['row']     = $row;
-        $sql['fetch']   = $fetch;
-        return $sql;
+    //     $sql['row']     = $row;
+    //     $sql['fetch']   = $fetch;
+    //     return $sql;
+    // }
+
+    public function getSales_Limit_BySales_code($sales_code) {
+        $query = "
+            SELECT 
+                SUM(ds.qty) AS total_items, 
+                SUM(ds.subtotal) AS grand_total, 
+                COALESCE(pt.persentage, 0) AS tax_percentage, 
+                COALESCE(psc.persentage, 0) AS service_charge_percentage,
+                ts.total as total_sales,
+                ds.sales_code
+            FROM 
+                d_sales ds
+            JOIN 
+                t_sales ts ON ds.sales_code = ts.sales_code
+            LEFT JOIN 
+                p_tax pt ON ds.tax_id = pt.id_tax AND pt.stat = 1 AND (ts.date BETWEEN pt.date_from AND pt.date_till)
+            LEFT JOIN 
+                p_service_charge psc ON ds.service_id = psc.id_service AND psc.stat = 1 AND (ts.date BETWEEN psc.date_from AND psc.date_till)
+            WHERE 
+                ds.sales_code = :sales_code
+            GROUP BY
+                ds.sales_code
+        ";
+    
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':sales_code', $sales_code, PDO::PARAM_STR);
+    
+        $result = [];
+        
+        try {
+            if ($stmt->execute()) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+                if ($row) {
+                    // Calculate tax and service charge amounts
+                    $taxAmount = ($row['tax_percentage'] / 100) * $row['grand_total'];
+                    $serviceChargeAmount = ($row['service_charge_percentage'] / 100) * $row['grand_total'];
+        
+                    // Example static discount
+                    $discount = 100000;
+        
+                    // Calculate the final total after discount
+                    $finalTotal = $row['grand_total'] + $taxAmount + $serviceChargeAmount - $discount;
+        
+                    $result = [
+                        'status' => 'success',
+                        'total_items' => $row['total_items'],
+                        'grand_total' => $row['grand_total'],
+                        'discount' => $discount,
+                        'tax' => $taxAmount,
+                        'service_charge' => $serviceChargeAmount,
+                        'total' => $finalTotal
+                    ];
+                } else {
+                    $result = [
+                        'status' => 'failed',
+                        'msg' => 'No data found for sales code'
+                    ];
+                }
+            }
+        } catch (PDOException $e) {
+            error_log('PDOException: ' . $e->getMessage());
+            $result = [
+                'status' => 'failed',
+                'msg' => 'Query failed to execute: ' . $e->getMessage()
+            ];
+        }
+    
+        return $result;
     }
+    
 
+    
 
 
     public function getSales_BySales_code($sales_code)
@@ -264,28 +328,8 @@ class M_sales extends Conn
     /* 
      * GET DISCOUNT
      */
-    public function getDiscount2($product_code){
-        $query= "SELECT * from m_product where product_code='$product_code'";
-        $result = $this->db->query($query);
-        $data   = $result->fetch(PDO::FETCH_ASSOC);
-        $date=date('Y-m-d');
-        $queryAll= "SELECT m.start, m.end, d.promo_type, d.promo_id, d.id_product, d.discount, d.promo_id FROM m_promo m join d_promo d on m.promo_id=d.promo_id where m.start <= '$date' AND m.end >= '$date' and d.promo_type='all' order by m.start ASC limit 1";
-        $resultAll = $this->db->query($queryAll);
-        $dataAll  = $resultAll->fetch(PDO::FETCH_ASSOC);
-        if($dataAll){
-            $result_data=$dataAll;
-        }else{
-            $queryCust= "SELECT m.start, m.end, d.promo_type, d.promo_id, d.id_product, d.discount, d.promo_id FROM m_promo m join d_promo d on m.promo_id=d.promo_id where m.start <= '$date' AND m.end >= '$date' and d.promo_type='custom' and d.id_product='$data[id]' order by m.start ASC limit 1";
-            $resultCust = $this->db->query($queryCust);
-            $dataCust  = $resultCust->fetch(PDO::FETCH_ASSOC);
-            $result_data=$dataCust;
-        }
-        // echo $dataAll;die
-        return $result_data;
-    }
     public function getDiscount($date)
     {
-        
         $query  = "SELECT 
                     * 
                     FROM 
@@ -294,18 +338,12 @@ class M_sales extends Conn
                         `start` <= '$date' AND 
                         `end` >= '$date'
                     LIMIT 1";
+
         $result = $this->db->query($query);
-
         $data   = $result->fetch(PDO::FETCH_ASSOC);
-        // $result = $this->db->query($query);
-    	// $fetch 	= $result->fetchALL();
-
-    	// $sql['data'] = $fetch;
-        // echo $data['start'];die;
         $row    = $result->rowCount();
 
         $sql['data']    = $data;
-        // echo $sql['data'];
         $sql['row']     = $row;
         return $sql; 
     }

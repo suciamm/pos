@@ -11,6 +11,8 @@ include_once '../model/M_tax.php';
 $db = new M_tax(); // Inisialisasi objek M_tax
 // $aksi 	= $_POST['aksi'];
 $aksi = $_POST['aksi'] ?? '';
+// $aksi 	= $_POST['aksi'];
+
 // echo $aksi;die;
 $response = array();
 
