@@ -527,29 +527,33 @@
 			border-bottom: 1px solid rgba(0, 0, 0, 0.1); 
 		}
 
-	
+
 
 	/* PAGE REPORT */
 		.form-report-page body {
 			font-family: Arial, sans-serif;
-			margin: 0;
-			padding: 0;
+			margin: 80px;
+			padding: 80px;
 			height: 100vh;
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			background-color: #f0f2f5;
+			background-color: #ffffff;
 		}
 
 		.form-report-page form {
 			width: 100%;
 			max-width: 600px;
-			padding: 20px;
+			padding: 50px;
+			margin: 15% 0 0 27% ;
+			display: block;
+			justify-content: center;
 			border: 1px solid #ccc;
 			border-radius: 5px;
 			background-color: #f9f9f9;
 			box-sizing: border-box;
 		}
+
 
 		.form-report-page p {
 			margin-bottom: 5px;
@@ -579,22 +583,51 @@
 			width: 100%;
 			padding: 10px;
 			margin-top: 10px;
-			background-color: #007bff;
+			background-color: #005eff;
 			color: white;
 			border: none;
 			border-radius: 4px;
 			cursor: pointer;
 		}
-
+		.form-report-page #button-edit {
+			width: 25px;
+			background-color: rgb(0, 170, 255);
+			color: white;
+			border: none;
+			border-radius: 4px;	
+			cursor: pointer;
+		}
+		.center-button {
+			display: flex;
+			justify-content: center; /* Horizontal center */
+			align-items: center;     /* Vertical center */
+			height: 100%;            /* Make sure button fills the cell */
+		}
+		
 		.form-report-page button:hover {
 			background-color: #0056b3;
 		}
 
-		.form-report-page #resultContainer {
+
+		.form-report-page #resultContainer_youReport {
 			display: none;
 			width: 90%;
-			max-width: 900px;
-			margin: 20px auto;
+			/* max-width:	 90%; */
+			margin: 2% 0 0 5% ;
+			padding: 20px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			background-color: #f9f9f9;
+			overflow: auto;
+			max-height: 80vh;
+		}
+		.form-report-page #resultContainer_allReport {
+			display: none;
+			width: 60%;
+			display: flex;
+			justify-content: center; /* Center horizontally */
+			align-items: center;     
+			margin: 2% 0 0 20% ;
 			padding: 20px;
 			border: 1px solid #ccc;
 			border-radius: 5px;
@@ -603,17 +636,60 @@
 			max-height: 80vh;
 		}
 
-		.form-report-page table {
+		.form-report-page #resultContainer_allReportDetail {
+			display: none;
+			width: 95%;
+			max-width: 80%;
+			margin: 2% 0 0 10% ;
+			padding: 20px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			background-color: #f9f9f9;
+			overflow: auto;
+			max-height: 80vh;
+		}
+
+		.form-report-page #resultContainer_youReport .table-responsive {
+			width: 30%;
+			/* overflow-x: auto; */
+			border-collapse: collapse;
+			margin-top: 20px;	
+		}
+
+		.form-report-page #resultContainer_youReport .table-responsive-detail {
 			width: 100%;
 			border-collapse: collapse;
+			margin-top: 20px;
+
 		}
 
-		.form-report-page th, .form-report-page td {
+		.form-report-page #resultContainer_allReport .table-responsive {
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 20px;
+			margin-left:8px;		
+		}
+
+		/* .form-report-page #resultContainer_allReportDetail .table-responsive {
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 20px;		
+		} */
+
+		.form-report-page th {
 			padding: 8px;
-			text-align: left;
-			border-bottom: 1px solid #ddd;
+			/* margin: 20px; */
+			text-align: center;
+			table-layout: fixed !important;
+			border-bottom: 1px solid #ddd;	
 		}
-
+		 .form-report-page td {
+			padding: 8px;
+			/* margin: 20px; */
+			text-align: left;
+			table-layout: fixed !important;
+			border-bottom: 1px solid #ddd;	
+		}
 		.form-report-page th {
 			background-color: #f2f2f2;
 		}
@@ -622,13 +698,35 @@
 			display: inline-block;
 			margin: 20px 10px 0 0;
 			padding: 10px 20px;
+			width: 200px;
 			background-color: #28a745;
 			color: white;
 			border: none;
 			border-radius: 4px;
 			cursor: pointer;
 		}
-
+		.form-report-page #backtoyoureport {
+			display: inline-block;
+			margin: 20px 10px 0 0;
+			padding: 10px 20px;
+			width: 150px;
+			background-color: rgb(0, 60, 255);
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+		.form-report-page #backtoallreport {
+			display: inline-block;
+			margin: 20px 10px 0 0;
+			padding: 10px 20px;
+			width: 150px;
+			background-color: rgb(0, 60, 255);
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
 		.form-report-page .download-button:hover {
 			background-color: #218838;
 		}

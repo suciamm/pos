@@ -1,8 +1,14 @@
+
 <?php
 include_once '../include/paging.php';	
 $db 	= direct_model('M_sales');
 
 $aksi 	= $_POST['aksi'];
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Your existing code
 
 
 /*
@@ -189,7 +195,7 @@ $aksi 	= $_POST['aksi'];
 					
 					$response['output'] .= '<div class="row">';
 					$response['output'] .= '<div class="col-9 p-0 pl-1">
-												<div class="row statistic pt-0 pt-2">
+												<divy class="row statistic pt-0 pt-2">
 												<div class="i-checks">
 												<input type="checkbox" class="check checkbox-template col-1 listorder-checkbox" value="'.$view['sales_code'].'">
 												</div>
@@ -554,103 +560,50 @@ $aksi 	= $_POST['aksi'];
 	}
 
 
-	else if($aksi == 'paymentNonCash') 
-	{
-		$sales_code = $_POST['sales_code'];
-		$id_payment = $_POST['id_payment'];
-		$sales 		= $db->getSales_Limit_BySales_code($sales_code);
-		$result 	= $sales['row'];
+	else if ($aksi === 'paymentNonCash') {
+        $sales_code = $_POST['sales_code'];
+        $id_payment = $_POST['id_payment'];
 
-		if($result > 0) 
-		{
-			//detail order
-			$detail 	= $db->getSales_detail($sales_code);
-			$qty 		= [];
-			$total 		= $sales['fetch']['total'];
-			$date 		= $sales['fetch']['date'];			
+        // Memanggil fungsi getQtyAndTotalBySalesCode dari M_sales
+        $result = $db->getQtyAndTotalBySalesCode($sales_code);
 
-			//check discount
-			$discount    = [];
-			$getDiscount = $db->getDiscount($date);
-			$row 		 = $getDiscount['row'];
-			$data 		 = $getDiscount['data'];
-			$promo_id 	 = $data['promo_id'];
+        if ($result['status'] === 'success') {
+            $qty = $result['qty'];
+            $grandTotal = $result['total'];
+			$tax = $result['tax'];
+			$service = $result['service'];
 
-			if($row > 0) // jika ada promo
-			{					
-					foreach ($detail['fetch'] as $view)
-					{
-						$qty[] 		= $view['qty'];						
+            // Data statis untuk pengujian
+            // $tax = 50000; // Rp 50.000
+            // $serviceCharge = 30000; // Rp 30.000
+            $discount = $grandTotal * 0.1; // Diskon 10%
 
-						//detail discount
-						$promoDetail = $db->getDiscountDetail($promo_id);
-						$promoData 	 = $promoDetail['data'];
-						$promoRow 	 = $promoDetail['row'];
+            // Total setelah diskon, pajak, dan service charge
+            $total = $grandTotal - $discount + $tax + $service;
 
-						if($promoRow > 0) //jika ada detail promo
-						{
-							foreach ($promoData as $promo)
-							{
-								$promo_type 	= $promo['promo_type'];
-								$promo_payment 	= $promo['promo_payment'];
+            // Mengembalikan respons JSON
+            $response = [
+                'status' => 'success',
+                'aksi' => $aksi,
+                'msg' => 'Data is exist',
+                'sales_code' => $sales_code,
+                'qty' => $qty,
+                'grand_total' => 'Rp ' . number_format($grandTotal, 0, ',', '.'),
+                'discount' => 'Rp ' . number_format($discount, 0, ',', '.'),
+                'tax' => 'Rp ' . number_format($tax, 0, ',', '.'),
+                'service' => 'Rp ' . number_format($service, 0, ',', '.'),
+                'total' => 'Rp ' . number_format($total, 0, ',', '.')
+            ];
+        } else {
+            $response = [
+                'status' => 'failed',
+                'aksi' => $aksi,
+                'msg' => $result['msg'] ?? 'Data not found'
+            ];
+        }
 
-								if($promo_payment  == 'all' && $promo_type == 'all') {
-								$discount[] 		= $view['subtotal'] * ($promo['discount'] / 100); 
-								}
-
-								else if($promo_payment 	== 'all' && $promo_type == 'custom') {
-										if($view['id_product'] == $promo['id_product']){
-										$pSale 					= $db->getPriceDiscount($view['product_code'],$view['sales_code']);
-										$discount[] 			= $pSale['discount_total'];
-										}
-								}
-
-								else if($promo_payment == 'custom' && $promo_type == 'custom') {
-										if($id_payment == $promo['id_payment'] && $view['id_product'] == $promo['id_product']){
-										$pSale 			= $db->getPriceDiscount($view['product_code'],$view['sales_code']);
-										$discount[] 	= $pSale['discount_total'];
-										}
-								}
-
-								else if($promo_payment == 'custom' && $promo_type == 'all'){
-										if($id_payment == $promo['id_payment']) {
-										$discount[] 	= $view['subtotal'] * ($promo['discount'] / 100); 
-										}
-								}
-							}
-						}
-						else { $discount[] = NULL;}
-					}
-			}
-			else 
-			{
-					foreach ($detail['fetch'] as $view) {
-					$qty[] 	= $view['qty'];
-					}					
-			}
-			$response['non-cash'] 		= $discount;			
-			$qty 		= array_sum($qty);			
-			$discount 	= array_sum($discount);
-			
-			
-			$response['sales_code']	= $sales_code;
-			$response['qty'] 		= $qty;
-			$response['grand_total']= 'Rp '.rupiah($total);
-			$response['discount'] 	= 'Rp '.rupiah($discount);
-			$response['total'] 		= 'Rp '.rupiah($total-$discount);
-
-			$response['status'] = 'success';
-			$response['aksi'] 	= $aksi;
-			$response['msg'] 	= 'data is exist';
-		}
-		else 
-		{
-			$response['status'] = 'failed';
-			$response['aksi'] 	= $aksi;
-			$response['msg'] 	= 'data not found';
-		}
-		echo json_encode($response);
-	}
+        echo json_encode($response);
+    } 
 
 
 	else if($aksi == 'paymentFinish')
@@ -827,5 +780,36 @@ $aksi 	= $_POST['aksi'];
 		}
 		echo json_encode($response);			
 	}
-
+	else if ($aksi == 'getService') {
+		// Return static service data as JSON
+		$response = [
+			'hasil' => [
+				'persentage' => 3 // Example service percentage of 3%
+			],
+			'row' => 1
+		];
+		echo json_encode($response);
+	} 
+	else if ($aksi == 'getDiscountAll') {
+		// Return static discount data as JSON
+		$response = [
+			'hasil' => [
+				'discount' => 10 // Example discount of 10%
+			],
+			'row' => 1
+		];
+		echo json_encode($response);
+	} 
+	else if ($aksi == 'getTax') {
+		// Return static tax data as JSON
+		$response = [
+			'hasil2' => [
+				'persentage' => 5 // Example tax percentage of 5%
+			],
+			'row' => 1
+		];
+		echo json_encode($response);
+	} 
+	
+	
 ?>

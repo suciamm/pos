@@ -1,8 +1,14 @@
+
 <?php
 include_once '../include/paging.php';	
 $db 	= direct_model('M_sales');
 
 $aksi 	= $_POST['aksi'];
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Your existing code
 
 
 /*
@@ -189,7 +195,7 @@ $aksi 	= $_POST['aksi'];
 					
 					$response['output'] .= '<div class="row">';
 					$response['output'] .= '<div class="col-9 p-0 pl-1">
-												<div class="row statistic pt-0 pt-2">
+												<divy class="row statistic pt-0 pt-2">
 												<div class="i-checks">
 												<input type="checkbox" class="check checkbox-template col-1 listorder-checkbox" value="'.$view['sales_code'].'">
 												</div>
@@ -554,46 +560,48 @@ $aksi 	= $_POST['aksi'];
 	}
 
 
-	else if ($aksi == 'paymentNonCash') {
+	else if ($aksi === 'paymentNonCash') {
 		$sales_code = $_POST['sales_code'];
 		$id_payment = $_POST['id_payment'];
 	
-		// Debugging: Log received POST data
-		error_log('Received Sales Code: ' . $sales_code);
-		error_log('Received ID Payment: ' . $id_payment);
+		// Memanggil fungsi getQtyAndTotalBySalesCode dari M_sales
+		$result = $db->getQtyAndTotalBySalesCode($sales_code);
 	
-		try {
-			$salesData = $salesModel->getSales_Limit_BySales_code($sales_code);
-			if ($salesData['status'] === 'success') {
-				$response = array(
-					'status' => 'success',
-					'aksi' => $aksi,
-					'msg' => 'Data exists',
-					'sales_code' => $sales_code,
-					'total_items' => $salesData['total_items'],
-					'grand_total' => 'Rp ' . number_format($salesData['grand_total'], 2, ',', '.'),
-					'discount' => 'Rp ' . number_format($salesData['discount'], 2, ',', '.'),
-					'tax' => 'Rp ' . number_format($salesData['tax'], 2, ',', '.'),
-					'service_charge' => 'Rp ' . number_format($salesData['service_charge'], 2, ',', '.'),
-					'total' => 'Rp ' . number_format($salesData['total'], 2, ',', '.')
-				);
-			} else {
-				$response['msg'] = 'No data found for sales code';
-			}
-		
-		} catch (Exception $e) {
-			// Log error
-			error_log('Exception caught: ' . $e->getMessage());
-			$response = array(
+		if ($result['status'] === 'success') {
+			$qty = $result['qty'];
+			$subtotal = $result['subtotal']; 
+			$discount = $result['discount'];
+			$tax = $result['tax'];
+			$service = $result['service'];
+
+			// Menghitung total setelah diskon, pajak, dan service charge
+			$total = $subtotal - $discount + $tax + $service;
+	
+			// Mengembalikan respons JSON
+			$response = [
+				'status' => 'success',
+				'aksi' => $aksi,
+				'msg' => 'Data is exist',
+				'sales_code' => $sales_code,
+				'qty' => $qty,
+				'grand_total' => 'Rp ' . number_format($subtotal, 0, ',', '.'),
+				'discount' => 'Rp ' . number_format($discount, 0, ',', '.'),
+				'tax' => 'Rp ' . number_format($tax, 0, ',', '.'),
+				'service' => 'Rp ' . number_format($service, 0, ',', '.'),
+				'total' => 'Rp ' . number_format($total, 0, ',', '.')
+			];
+		} else {
+			$response = [
 				'status' => 'failed',
-				'msg' => 'Error occurred: ' . $e->getMessage()
-			);
+				'aksi' => $aksi,
+				'msg' => $result['msg'] ?? 'Data not found'
+			];
 		}
 	
 		echo json_encode($response);
 	}
 	
-
+	
 
 
 	else if($aksi == 'paymentFinish')
@@ -632,6 +640,64 @@ $aksi 	= $_POST['aksi'];
 			echo json_encode($response);
 	}
 
+	//coba print
+
+	// else if ($aksi === 'getStaticBillData') {
+    //     // Data statis
+    //     $response = [
+    //         'status' => 'success',
+    //         'sales_code' => '123456',
+    //         'date' => '2024-08-14',
+    //         'staff' => 'Adam',
+    //         'table' => '13',
+    //         'items' => [
+    //             ['qty' => 2, 'product' => 'Ayam Goreng', 'price' => 50000],
+    //             ['qty' => 1, 'product' => 'Es Jeruk', 'price' => 150000],
+    //         ],
+    //         'subtotal' => 200000,
+    //         'discount' => 10000,
+    //         'tax' => 15000,
+    //         'service' => 5000,
+    //         'grand_total' => 210000,
+    //     ];
+
+    //     echo json_encode($response);
+    //     exit;
+    // }
+
+
+	else if ($aksi === 'printBill') {
+    $sales_code = $_POST['sales_code'];
+
+    // Memanggil fungsi getBillData dari M_sales
+    $result = $db->getBillData($sales_code);
+
+    if ($result['status'] === 'success') {
+        $response = [
+            'status' => 'success',
+            'sales_code' => $result['sales_code'],
+            'date' => $result['date'],
+            'operator' => $result['operator'],
+            'table_id' => $result['table_id'],
+            'items' => $result['items'],
+            'subtotal' => 'Rp ' . number_format($result['subtotal'], 0, ',', '.'),
+            'discount' => 'Rp ' . number_format($result['discount'], 0, ',', '.'),
+            'tax' => 'Rp ' . number_format($result['tax'], 0, ',', '.'),
+            'service' => 'Rp ' . number_format($result['service'], 0, ',', '.'),
+            'grand_total' => 'Rp ' . number_format($result['grand_total'], 0, ',', '.')
+        ];
+    } else {
+        $response = [
+            'status' => 'failed',
+            'msg' => $result['msg'] ?? 'Data not found'
+        ];
+    }
+
+    echo json_encode($response);
+}
+	
+	
+	
 
 
 
@@ -677,14 +743,18 @@ $aksi 	= $_POST['aksi'];
 	{
 		if(isset($_POST['product_code'])) {
 			
-
+			
 			$total 		= $_POST['total'];
+			$subtotal	= $_POST['subtotal'];
+			$discount 	= $_POST['discount'];
+			$tax 		= $_POST['tax'];
+			$service 	= $_POST['service'];			
 			$date 		= date('Y-m-d H:i:s');	
 			$operator	= $_POST['operator'];			
 			$p_code 	= $_POST['product_code'];
 			$qty 		= $_POST['qty'];
 
-
+ 
 			if(empty($_POST['table_id']) OR ($_POST['table_id'] == '')) { $table_id = 'NULL'; }
 			else 
 			{
@@ -702,13 +772,11 @@ $aksi 	= $_POST['aksi'];
 			if($order_row > 0) { $id = $order['id']+1; }
 			else { $id = 1; }
 			$sales_code = date('ymdhi').'-'.$id;
-
-
 			
 			//insert t_sales & d_sales
 			$add_order 	= $db->setOrder($sales_code,$date,$total,$operator,$table_id);
 			foreach ($p_code as $i => $product_code) {
-			$db->setDetail_order($product_code,$qty[$i],$sales_code);
+			$db->setDetail_order($product_code,$qty[$i],$sales_code,$subtotal,$discount,$tax,$service);
 			}
 
 			$response['status'] = 'success';
@@ -770,5 +838,36 @@ $aksi 	= $_POST['aksi'];
 		}
 		echo json_encode($response);			
 	}
-
+	else if ($aksi == 'getService') {
+		// Return static service data as JSON
+		$response = [
+			'hasil' => [
+				'persentage' => 3 // Example service percentage of 3%
+			],
+			'row' => 1
+		];
+		echo json_encode($response);
+	} 
+	else if ($aksi == 'getDiscountAll') {
+		// Return static discount data as JSON
+		$response = [
+			'hasil' => [
+				'discount' => 10 // Example discount of 10%
+			],
+			'row' => 1
+		];
+		echo json_encode($response);
+	} 
+	else if ($aksi == 'getTax') {
+		// Return static tax data as JSON
+		$response = [
+			'hasil2' => [
+				'persentage' => 5 // Example tax percentage of 5%
+			],
+			'row' => 1
+		];
+		echo json_encode($response);
+	} 
+	
+	
 ?>

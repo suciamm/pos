@@ -1,17 +1,10 @@
 <?php
 include_once '../include/paging.php';
+ 
+session_start();
+$namaUser = isset($_SESSION['pos-username']) ? $_SESSION['pos-username'] : "User tidak dikenal";    
 
-// // tambahan user login di report 
-// session_start(); // Pastikan sesi dimulai
-// // Pastikan pengguna sudah login
-// if (!isset($_SESSION['pos-id_account'])) {
-//     echo json_encode(['status' => 'error', 'msg' => 'User not logged in']);
-//     exit;
-// }
-// $userId = $_SESSION['pos-id_account']; // Ambil ID pengguna dari sesi
-
-
-$db = direct_model('M_report');
+$db = direct_model('M_report'); 
 $aksi = $_POST['aksi'];
 
 if ($aksi == 'getReportDetail') {
@@ -25,13 +18,20 @@ if ($aksi == 'getReportDetail') {
     if ($tes['row'] > 0) {
         $response['status'] = 'success';
         $response['data'] = $tes['data'];
+        $response['namaUser'] = $namaUser; // Sertakan nama pengguna
+
     } else {
         $response['status'] = 'error';
         $response['data'] = null;
+        $response['namaUser'] = $namaUser; // Sertakan nama pengguna
+
     }
 
     echo json_encode($response);
-} else if ($aksi == 'getReport') {
+} 
+
+else if ($aksi == 'getReport') {
+    
     $date_from = $_POST['date_from'];
     $date_till = $_POST['date_till'];
 
@@ -41,11 +41,68 @@ if ($aksi == 'getReportDetail') {
     if ($tes['row'] > 0) {
         $response['status'] = 'success';
         $response['data'] = $tes['data'];
+        $response['namaUser'] = $namaUser; // Sertakan nama pengguna
     } else {
         $response['status'] = 'error';
         $response['data'] = null;
+        $response['namaUser'] = $namaUser; // Sertakan nama pengguna
+    }
+
+    echo json_encode($response);
+} 
+
+
+else if ($aksi == 'getReportDetailAll') {
+    
+    $date_from = $_POST['date_from'];
+    $date_till = $_POST['date_till'];
+    $operator = $_POST['operator'];
+    // $selected_date = $_POST['selected_date'];
+
+    $tes = $db->getSalesReportDetailAll($date_from, $date_till, $operator);
+    // $tes = $db->getSalesReportDetail($userId, $date_from, $date_till);
+    if ($tes['row'] > 0) {
+        $response['status'] = 'success';
+        $response['data'] = $tes['data'];
+        $response['namaUser'] = $namaUser; // Sertakan nama pengguna
+    } else {
+        $response['status'] = 'error';
+        $response['data'] = null;
+        $response['namaUser'] = $namaUser; // Sertakan nama pengguna
+    }
+
+    echo json_encode($response);
+} 
+
+     
+
+else if ($aksi == 'getReportAll') {
+    $date_from = $_POST['date_from'];
+    $date_till = $_POST['date_till'];
+
+    $tes = $db->getSalesReportAll($date_from, $date_till);
+    
+    if ($tes['row'] > 0) {
+        $groupedData = [];
+        foreach ($tes['data'] as $row) {
+            $groupedData[$row['operator']][] = $row;
+        }   
+        // foreach ($tes['data'] as $row) {
+        //     $groupedData[$row['operator']][] = [
+        //         'date' => $row['date']
+        //     ];
+        // }
+        $response['status'] = 'success';
+        $response['data'] = $groupedData;
+        $response['namaUser'] = $namaUser;
+    } else {
+        $response['status'] = 'error';
+        $response['data'] = null;
+        $response['namaUser'] = $namaUser;
     }
 
     echo json_encode($response);
 }
+
+
 ?>

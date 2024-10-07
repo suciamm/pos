@@ -144,75 +144,50 @@ class M_sales extends Conn
     //     return $sql;
     // }
 
-    public function getSales_Limit_BySales_code($sales_code) {
+    public function getQtyAndTotalBySalesCode($sales_code)
+    {
         $query = "
-            SELECT 
-                SUM(ds.qty) AS total_items, 
-                SUM(ds.subtotal) AS grand_total, 
-                COALESCE(pt.persentage, 0) AS tax_percentage, 
-                COALESCE(psc.persentage, 0) AS service_charge_percentage,
-                ts.total as total_sales,
-                ds.sales_code
-            FROM 
-                d_sales ds
-            JOIN 
-                t_sales ts ON ds.sales_code = ts.sales_code
-            LEFT JOIN 
-                p_tax pt ON ds.tax_id = pt.id_tax AND pt.stat = 1 AND (ts.date BETWEEN pt.date_from AND pt.date_till)
-            LEFT JOIN 
-                p_service_charge psc ON ds.service_id = psc.id_service AND psc.stat = 1 AND (ts.date BETWEEN psc.date_from AND psc.date_till)
-            WHERE 
-                ds.sales_code = :sales_code
-            GROUP BY
-                ds.sales_code
+        SELECT 
+            COALESCE(SUM(d.qty), 0) AS total_qty,
+            COALESCE(SUM(d.subtotal), 0) AS Subtotal,  -- Kurung yang benar
+            COALESCE(SUM(d.discount), 0) AS Discount,
+            COALESCE(SUM(d.tax), 0) AS Tax,
+            COALESCE(SUM(d.service), 0) AS Service_Charge
+        FROM 
+            d_sales d
+        WHERE 
+            d.sales_code = :sales_code;
         ";
     
+        // Siapkan statement
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':sales_code', $sales_code, PDO::PARAM_STR);
     
-        $result = [];
-        
-        try {
-            if ($stmt->execute()) {
-                $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-                if ($row) {
-                    // Calculate tax and service charge amounts
-                    $taxAmount = ($row['tax_percentage'] / 100) * $row['grand_total'];
-                    $serviceChargeAmount = ($row['service_charge_percentage'] / 100) * $row['grand_total'];
-        
-                    // Example static discount
-                    $discount = 100000;
-        
-                    // Calculate the final total after discount
-                    $finalTotal = $row['grand_total'] + $taxAmount + $serviceChargeAmount - $discount;
-        
-                    $result = [
-                        'status' => 'success',
-                        'total_items' => $row['total_items'],
-                        'grand_total' => $row['grand_total'],
-                        'discount' => $discount,
-                        'tax' => $taxAmount,
-                        'service_charge' => $serviceChargeAmount,
-                        'total' => $finalTotal
-                    ];
-                } else {
-                    $result = [
-                        'status' => 'failed',
-                        'msg' => 'No data found for sales code'
-                    ];
-                }
+        // Eksekusi query
+        if ($stmt->execute()) {
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($result) {
+                return [
+                    'status' => 'success',
+                    'qty' => $result['total_qty'],
+                    'subtotal' => $result['Subtotal'],
+                    'discount' => $result['Discount'],
+                    'tax' => $result['Tax'],
+                    'service' => $result['Service_Charge']
+                ];
             }
-        } catch (PDOException $e) {
-            error_log('PDOException: ' . $e->getMessage());
-            $result = [
-                'status' => 'failed',
-                'msg' => 'Query failed to execute: ' . $e->getMessage()
-            ];
         }
     
-        return $result;
+        // Kembalikan respons jika query gagal
+        return [
+            'status' => 'failed',
+            'msg' => 'Failed to retrieve data'
+        ];
     }
+    
+    
+        
+    
     
 
     
@@ -275,15 +250,23 @@ class M_sales extends Conn
     {
     	$query 	= "INSERT INTO `t_sales` VALUES (NULL, '$sales_code', '$date', '$total', 'N', '$operator',$table_id)";
     	$result = $this->db->query($query);
+        if (!$result) {
+            error_log('Database query failed: ' . $this->db->error);
+        }
     }
 
 
     
-    public function setDetail_order($product_code,$qty,$sales_code)
-    {
-    	$query 	= "INSERT INTO `d_sales` VALUES (NULL, '$product_code', '$qty', '$sales_code')";
-    	$result = $this->db->query($query);
+public function setDetail_order($product_code,$qty,$sales_code,$subtotal,$discount,$tax,$service)
+{
+    error_log("Subtotal: $subtotal, Discount: $discount, Tax: $tax, Service: $service"); // Log nilai yang dikirim
+    $query 	= "INSERT INTO `d_sales` VALUES (NULL, '$product_code', '$qty', '$sales_code','$subtotal', '$discount', '$tax', '$service')";
+    $result = $this->db->query($query);
+    if (!$result) {
+        error_log('Database query failed: ' . $this->db->error);
     }
+}
+
 
 
 
@@ -348,6 +331,58 @@ class M_sales extends Conn
         return $sql; 
     }
 
+// m_sales.php
+
+public function getDiscountAllItem($product_code)
+{
+    // Mengembalikan diskon statis tanpa query ke database
+    $discounts = [
+        'product_code_1' => 10, // Diskon 10% untuk product_code_1
+        'product_code_2' => 15, // Diskon 15% untuk product_code_2
+        'product_code_3' => 5,  // Diskon 5% untuk product_code_3
+    ];
+
+    // Jika product_code ada di daftar diskon, gunakan nilai tersebut
+    if (isset($discounts[$product_code])) {
+        $data = ['discount' => $discounts[$product_code]];
+        $row = 1;
+    } else {
+        // Jika tidak, anggap diskon adalah 0
+        $data = ['discount' => 0];
+        $row = 0;
+    }
+
+    $sql['data'] = $data;
+    $sql['row'] = $row;
+    return $sql;
+}
+    
+public function getDiscountAll()
+{
+    $date = date('Y-m-d'); // Get the current date
+    
+    // SQL query to get the discount for the current date
+    $query = "SELECT d.discount
+              FROM m_promo p
+              JOIN d_promo d ON p.promo_id = d.promo_id
+              WHERE p.start <= :date
+                AND p.end >= :date
+              LIMIT 1";
+    
+    $stmt = $this->db->prepare($query);
+    $stmt->bindParam(':date', $date);
+    $stmt->execute();
+    
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+    $row  = $stmt->rowCount();
+    
+    return [
+        'hasil' => $data,
+        'row' => $row
+    ];
+}
+
+
 
 
     public function getDiscountDetail($promo_id)
@@ -394,8 +429,124 @@ class M_sales extends Conn
     }
 
 
+// COBA PRINT DATA
+    // public function getSalesDataForPrint($sales_code)
+    // {
+    //     $query = "
+    //     SELECT 
+    //         id,
+    //         product_code,
+    //         qty,
+    //         sales_code,
+    //         subtotal,
+    //         discount,
+    //         tax,
+    //         service
+    //     FROM 
+    //         d_sales
+    //     WHERE 
+    //         sales_code = :sales_code
+    //     ";
+
+    //     $stmt = $this->db->prepare($query);
+    //     $stmt->bindParam(':sales_code', $sales_code, PDO::PARAM_STR);
+
+    //     if ($stmt->execute()) {
+    //         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    //         if ($result) {
+    //             return [
+    //                 'status' => 'success',
+    //                 'data' => $result
+    //             ];
+    //         }
+    //     }
+
+    //     return [
+    //         'status' => 'failed',
+    //         'msg' => 'No data found'
+    //     ];
+    // }
 
 
+
+    //dinamisnya
+    public function getBillData($sales_code)
+    {
+        $query = "
+        SELECT 
+            t.sales_code,
+            t.date,
+            t.operator,
+            t.table_id,
+            COALESCE(SUM(d.qty), 0) AS total_qty,
+            COALESCE(SUM(d.subtotal), 0) AS Subtotal,
+            COALESCE(SUM(d.discount), 0) AS Discount,
+            COALESCE(SUM(d.tax), 0) AS Tax,
+            COALESCE(SUM(d.service), 0) AS Service_Charge,
+            COALESCE(SUM(d.subtotal - d.discount + d.tax + d.service), 0) AS Grand_Total
+        FROM 
+            t_sales t
+        LEFT JOIN 
+            d_sales d ON t.sales_code = d.sales_code
+        WHERE 
+            t.sales_code = :sales_code
+        GROUP BY 
+            t.sales_code, t.date, t.operator, t.table_id;
+        ";
+    
+        // Siapkan statement
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':sales_code', $sales_code, PDO::PARAM_STR);
+    
+        // Eksekusi query
+        if ($stmt->execute()) {
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($result) {
+                // Ambil detail item
+                $itemQuery = "
+                SELECT 
+                    d.product_code,
+                    p.product,
+                    d.qty,
+                    d.subtotal,
+                    p.price
+                FROM 
+                    d_sales d
+                LEFT JOIN 
+                    m_product p ON d.product_code = p.product_code
+                WHERE 
+                    d.sales_code = :sales_code
+                ";
+    
+                $itemStmt = $this->db->prepare($itemQuery);
+                $itemStmt->bindParam(':sales_code', $sales_code, PDO::PARAM_STR);
+                $itemStmt->execute();
+                $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+                return [
+                    'status' => 'success',
+                    'sales_code' => $result['sales_code'],
+                    'date' => $result['date'],
+                    'operator' => $result['operator'],
+                    'table_id' => $result['table_id'],
+                    'items' => $items,
+                    'subtotal' => $result['Subtotal'],
+                    'discount' => $result['Discount'],
+                    'tax' => $result['Tax'],
+                    'service' => $result['Service_Charge'],
+                    'grand_total' => $result['Grand_Total']
+                ];
+            }
+        }
+    
+        // Kembalikan respons jika query gagal
+        return [
+            'status' => 'failed',
+            'msg' => 'Failed to retrieve data'
+        ];
+    }
+    
+    
 
 }
 

@@ -97,14 +97,7 @@
 // }
 
 
-
-
-
-
-
-
 include_once 'Conn.php'; 
-
 class Auth extends Conn
 {
     private function start_session() 
@@ -244,6 +237,9 @@ class Auth extends Conn
     //     }
     // }
 
+
+
+
     //GAPAKE HASH
     public function createAccount($username, $password, $status, $level) {
         error_log("Creating account with username: $username, password: $password, status: $status, level: $level");
@@ -263,8 +259,6 @@ class Auth extends Conn
             return array('status' => 'error', 'msg' => 'Failed to create account');
         }
     }
-    
-           
 }
 
 // if ($_SERVER['REQUEST_METHOD'] == 'POST') {

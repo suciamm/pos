@@ -46,8 +46,6 @@ class Auth extends Conn
         }
     }
 
-
-
     public function logout()
     {
     	$this->start_session();

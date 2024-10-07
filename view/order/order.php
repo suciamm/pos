@@ -1,3 +1,4 @@
+
 <?php
 $db = model('M_sales');
 $getMenu = $db->getMenu();
@@ -153,7 +154,7 @@ $getMenu = $db->getMenu();
 								<span class="col-lg-6">Tax</span>
 								<span class="col-lg-6 text-right price_tax">Rp 0</span>
 								<span class="col-lg-6">Service Charge</span>
-								<span class="col-lg-6 text-right price_service_charge">Rp 0</span>
+								<span class="col-lg-6 text-right price_service">Rp 0</span>
 								<span class="col-lg-12">
 									<hr>
 								</span>
@@ -165,19 +166,18 @@ $getMenu = $db->getMenu();
 							</div>
 						</div>
 						<div class="col-12">
-							<input type="hidden" name="total" class="hide-total">
+							<input type="hidden" name="total" 	 class="hide-total">
 							<input type="hidden" name="table_id" class="hide-table_id">
 							<input type="hidden" name="operator" value="<?php echo $_SESSION['pos-username']; ?>">
 							<input type="hidden" name="aksi" value="add-order">
 							<div class="row">
 								<span class="col-4">
-									<span class="col-12 btn btn-success modal-table" data-toggle="modal"
-										data-target="#modal-table">TABLE</span>
+								<span class="col-12 btn btn-success modal-table" data-toggle="modal" data-target="#modal-table">TABLE</span>
 								</span>
 								<span class="col-8">
-									<button type="submit" class="col-12 btn btn-primary">CHECKOUT</button>
-								</span>
-							</div>
+								<button type="submit" class="col-12 btn btn-primary">CHECKOUT</button>
+								</spa>							
+							</div>						
 						</div>
 					</div>
 				</form>
@@ -251,9 +251,9 @@ $getMenu = $db->getMenu();
 				<div class="col-12 mt-3 pt-3" id="payment-method">
 				</div>
 
-				<div class="row pl-3 pr-3 mt-3 d-none" id="payment-method-cash">
+				<!-- <div class="row pl-3 pr-3 mt-3 d-none" id="payment-method-cash">
 					payment cash
-				</div>
+				</div> -->
 
 				<div class="row pl-3 pr-3 mt-3 d-none" id="payment-method-noncash">
 					<h3 class="row pt-3 pb-3">
@@ -296,6 +296,11 @@ $getMenu = $db->getMenu();
 					<div class="col-12 p-0 mt-2" id="payment-finish">
 						<div class="col-12 text-center btn-success text-white p-3 mr-1">
 							<span>FINISH</span>
+						</div>
+					</div>
+					<div class="col-12 p-0 mt-2" id="payment-print-bill">
+						<div class="col-12 text-center btn-success text-white p-3 mr-1">
+							<span>PRINT THE BILL</span>
 						</div>
 					</div>
 				</div>
@@ -980,21 +985,27 @@ $getMenu = $db->getMenu();
 //     })
 // }
 
+
+var globalSalesCode = '';
+var globalIdPay = '';
 function paymentNonCash(url, sales_code, id) {
+	globalSalesCode = sales_code;
+	globalIdPay = id;
+
     $.ajax({
         url: url,
         type: 'POST',
         data: { 'aksi': 'paymentNonCash', 'sales_code': sales_code, 'id_payment': id },
-        dataType: 'json', // Ubah menjadi json untuk parsing otomatis
+        dataType: 'json',
         success: function (data) {
             console.log('Response:', data);
 
-            if (data.status == 'success') {
-                $('#payment-noncash-item').text(data.total_items);
+            if (data.status === 'success') {
+                $('#payment-noncash-item').text(data.qty);
                 $('#payment-noncash-grandtotal').text(data.grand_total);
                 $('#payment-noncash-discount').text(data.discount);
                 $('#payment-noncash-tax').text(data.tax);
-                $('#payment-noncash-service').text(data.service_charge);
+                $('#payment-noncash-service').text(data.service);
                 $('#payment-noncash-total').text(data.total);
             } else {
                 console.error('Error:', data.msg);
@@ -1008,6 +1019,7 @@ function paymentNonCash(url, sales_code, id) {
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.error('AJAX error:', textStatus, errorThrown);
+            console.error('Response Text:', jqXHR.responseText);
         }
     });
 }
@@ -1090,6 +1102,18 @@ function paymentCash(url, sales_code, id) {
 		})
 	}
 
+	// Other validation functions...
+
+	// function rupiah(value) {
+	// 	if (value === null || value === undefined) {
+	// 		return '0'; // Default to '0' if value is null or undefined
+	// 	}
+	// 	value = parseFloat(value);
+	// 	if (isNaN(value)) {
+	// 		return '0'; // Return '0' if value cannot be converted to a number
+	// 	}
+	// 	return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+	// }
 
 	$(document).ready(function () {
 		var url = 'process/P_sales.php';
@@ -1121,6 +1145,10 @@ function paymentCash(url, sales_code, id) {
 		var discount = toInteger($('.price_discount').text());
 		var service = toInteger($('.price_service').text());
 
+		var discountValue;
+		var taxtValue;
+		var serviceValue;
+		var subtotalValue;
 		$('#list-product').on('click', '.menu-product', function () {
 
 			var image = $(this).find('.img-product').attr('src');
@@ -1151,7 +1179,10 @@ function paymentCash(url, sales_code, id) {
 							var harga_diskon = priceInt * (dsc / 100);
 							discount += harga_diskon;
 							$('.price_discount').text(rupiah(discount));
-
+							
+							var totalDiscount = $('.price_discount').text();
+							discountValue = parseInt(totalDiscount.replace(/[^0-9]/g, ''), 10);
+							console.log("Nilai discountValue: " + discountValue);
 						} else {
 							console.log("Discount data is not available");
 						}
@@ -1171,12 +1202,17 @@ function paymentCash(url, sales_code, id) {
 					dataType: 'json',
 					async: false,
 					success: function(response) {
-						// console.log(response); // Tambahkan log untuk debugging
+						console.log(response); // Tambahkan log untuk debugging
 						var tx = response.hasil2["persentage"];		
-						if (tx) {
+						if (tx) {	
 							var harga_tax = priceInt * (tx / 100);
 							tax += harga_tax;
 							$('.price_tax').text(rupiah(tax));
+
+							var totalTax = $('.price_tax').text();
+							taxValue = parseInt(totalTax.replace(/[^0-9]/g, ''), 10);
+							console.log("Nilai taxValue: " + taxValue);
+
 
 						} else {
 							console.log("Tax data is not available");
@@ -1206,6 +1242,11 @@ function paymentCash(url, sales_code, id) {
 							service += harga_service;
 							$('.price_service').text(rupiah(service));
 
+							var totalService = $('.price_service').text();
+							serviceValue = parseInt(totalService.replace(/[^0-9]/g, ''), 10);
+							console.log("Nilai serviceValue: " + serviceValue);
+
+
 						} else {
 							console.log("Tax data is not available");
 						}
@@ -1215,23 +1256,31 @@ function paymentCash(url, sales_code, id) {
 					}
 				});
 
-
 				//add row table
 				if (tr < 1) {
+					// console.log("mau setting subtotal");
+
 					// alert(discount);
 					$('.table-order').html(addRow(image, product, price, product_code));
 					$('.price_subtotal').text(rupiah(price));
-					// $('.price_discount').text(rupiah(discount));
-					// $('.price_tax').text(rupiah(tax));
-					// $('.price_service').text(rupiah(service));
 					
+					var totalsub = $('.price_subtotal').text();
+						subtotalValue = parseInt(totalsub.replace(/[^0-9]/g, ''), 10);
+						console.log("nilai subtotall = " + subtotalValue);
+
 					if (discount > 0) {
 						var total = priceInt - discount + service + tax;
 						$('.price_total').text(rupiah(total));
 						$('.hide-total').val(total);
+						// console.log("masuk if");
+						
 					} else {
 						$('.price_total').text(rupiah(price));
 						$('.hide-total').val(priceInt);
+						// console.log("masuk else");
+						// console.log("nilai subtotal = " + subtotalValue);
+
+
 					}
 				}
 				else {
@@ -1262,6 +1311,9 @@ function paymentCash(url, sales_code, id) {
 						var subtotal_item = priceInt * (gQty_item + 1);
 						var subtotal = (gPrice_subtotal - gSubtotal_item) + subtotal_item;
 						var total = subtotal - gPrice_discount + gPrice_service + gPrice_tax;
+						
+						subtotalValue = subtotal;
+						console.log("nilai subtotal = " + subtotalValue);
 
 						var sProduct_qty = $('.' + tr_class).find('.hide-prodcut_qty').val(gQty_item + 1);
 						var sqty_item = $('.' + tr_class).find('.qty_item').text(gQty_item + 1);
@@ -1281,6 +1333,8 @@ function paymentCash(url, sales_code, id) {
 
 						var subtotal = priceInt + gPrice_subtotal;
 						var total = subtotal + gPrice_discount - gPrice_tax - gPrice_service;
+						subtotalValue = subtotal;
+						console.log("nilai subtotal = " + subtotalValue);
 
 						$('.price_subtotal').text(rupiah(subtotal));
 						$('.price_total').text(rupiah(total));
@@ -1340,7 +1394,7 @@ function paymentCash(url, sales_code, id) {
 								var ssubtotal = $('.price_subtotal-change').text(rupiah(subtotal));
 								var stotal = $('.price_total-change').text(rupiah(total));
 								var htotal = $('.hide-total-change').val(total);
-							}
+							}	
 							else {
 								$('.table-order-change tr:last').after(addRow(image, product, price, product_code));
 
@@ -1584,6 +1638,11 @@ function paymentCash(url, sales_code, id) {
 						if (disc) {
 							var harga_discount = subtotal * (disc/100);
 							$('.price_discount').text(rupiah(harga_discount));
+
+							discountValue = harga_discount;
+							// console.log("Nilai discountminus: " + discountValue);
+
+
 						}
 					}
 				});
@@ -1600,7 +1659,11 @@ function paymentCash(url, sales_code, id) {
 						var tax = response.hasil2["persentage"];
 						if (tax) {
 							var harga_tax = subtotal * (tax/100);
+							totalTax = subtotal * (tax/100);
 							$('.price_tax').text(rupiah(harga_tax));
+
+							taxtValue = harga_tax;
+
 						}
 					}
 				});
@@ -1617,7 +1680,11 @@ function paymentCash(url, sales_code, id) {
 						var srv = response.hasil["persentage"];
 						if (srv) {
 							var harga_Service = subtotal * (srv/100);
+							totalService = harga_Service;
 							$('.price_service').text(rupiah(harga_Service));
+						
+							serviceValue = harga_Service;
+						
 						}
 					}
 				});
@@ -1678,6 +1745,10 @@ function paymentCash(url, sales_code, id) {
 					if (disc) {
 						var harga_discount = subtotal * (disc/100);
 						$('.price_discount').text(rupiah(harga_discount));
+
+						discountValue = harga_discount;
+						// console.log("Nilai discountValueplus: " + discountValue);
+
 					}
 				}
 			});
@@ -1694,7 +1765,11 @@ function paymentCash(url, sales_code, id) {
 					var tx = response.hasil2["persentage"];
 					if (tx) {
 						var harga_tax = subtotal * (tx/100);
+						totalTax = harga_tax;
 						$('.price_tax').text(rupiah(harga_tax));
+
+						taxValue = harga_tax;
+
 					}
 				}
 			});
@@ -1708,10 +1783,14 @@ function paymentCash(url, sales_code, id) {
 				dataType: 'json', // Mengubah dataType menjadi 'json' 
 				async: false,
 				success: function (response) {
-					var tx = response.hasil["persentage"];
-					if (tx) {
-						var harga_tax = subtotal * (tx/100);
-						$('.price_tax').text(rupiah(harga_tax));
+					var srv = response.hasil["persentage"];
+					if (srv) {
+						var harga_service = subtotal * (srv/100);
+						totalService = harga_service;
+						$('.price_service').text(rupiah(harga_service));
+				
+						serviceValue = harga_service;
+
 					}
 				}
 			});
@@ -1781,36 +1860,44 @@ function paymentCash(url, sales_code, id) {
 		});
 
 		$(document).on('submit', '#add-order', function(event) {
-				event.preventDefault();
-				$('.checked-modal').addClass('d-none');
+			event.preventDefault();
+			$('.checked-modal').addClass('d-none');
+			
+			console.log(subtotalValue);
+			console.log(discountValue);
+			console.log(taxValue);
+			console.log(serviceValue);
+			
 				$.ajax({
-					url 	: url,
-					type 	: 'POST',
-					data 	: $('#add-order').serialize(),
-					dataType: 'html',
-					success	: function(response){
-						var data =  $.parseJSON(response);
+				url 	: url,
+				type 	: 'POST',
+				data: $('#add-order').serialize() + '&subtotal=' + subtotalValue + '&discount=' + discountValue + '&tax=' + taxValue + '&service=' + serviceValue,				
+				dataType: 'html',
+				success	: function(response){
+					console.log(response); // Log the raw response
+					var data =  $.parseJSON(response);
+					
+					if(data.status == 'success') {
 						
-						if(data.status == 'success') {
-							
-							$('.table-order tr').each(function(index, el) {
-								$(this).remove();
-							});
-							$('.total_item').text(0); 
-							$('.price_subtotal').text('Rp 0');
-							$('.price_discount').text('Rp 0');
-							$('.price_total').text('Rp 0');
-							$('.hide-total').val(0);
-							notification(data.msg,'right top','success','notifSuccess',5000);
-						}
-						else {
-							notification(data.msg,'right top','warning','notifWarning',5000); 
-						}
+						$('.table-order tr').each(function(index, el) {
+							$(this).remove();
+						});
+						$('.total_item').text(0); 
+						$('.price_subtotal').text('Rp 0');
+						$('.price_discount').text('Rp 0');
+						$('.price_tax').text('Rp 0');
+						$('.price_service').text('Rp 0');
+						$('.price_total').text('Rp 0');
+						$('.hide-total').val(0);
+						notification(data.msg,'right top','success','notifSuccess',5000);
 					}
-				});	
-
+					else {
+						notification(data.msg,'right top','warning','notifWarning',5000); 
+					}
+				}
+			});		
 				$('.hide-table_id').val('');
-			});
+		});
 
 
 
@@ -2107,13 +2194,138 @@ function paymentCash(url, sales_code, id) {
 			$('#payment-method-cash').addClass('d-none');
 		});
 
-		$('#payment-print').click(function () {
-			var payment = $('#noncash-type').text();
-			var code = $('#payment-detail').find('.payment-order').text();
-			code = btoa(code);
-			payment = btoa(payment);
-			window.open('Http://localhost/pos/report/print-order-finish.php?id=' + code + '&pay=' + payment, 'POS', 'width=100, height=200, ');
-		});
+
+// $('#payment-print').click(function () {
+//     // Mengambil teks dari elemen dengan ID 'noncash-type' dan menyimpannya dalam variabel 'payment'
+//     var payment = $('#noncash-type').text();
+    
+//     // Mencari elemen dengan kelas 'payment-order' di dalam elemen dengan ID 'payment-detail', 
+//     // kemudian mengambil teksnya dan menyimpannya dalam variabel 'code'
+//     var code = $('#payment-detail').find('.payment-order').text();
+    
+//     // Mengonversi teks dalam variabel 'code' menjadi string yang dienkode dalam base64
+//     code = btoa(code);
+    
+//     // Mengonversi teks dalam variabel 'payment' menjadi string yang dienkode dalam base64
+//     payment = btoa(payment);
+//         window.open('Http://localhost/pos/report/print-order-finish.php?id=' + code + '&pay=' + payment, 'POS', 'width=100, height=200');
+// });
+
+
+$('#payment-print').click(function () {
+    var payment = $('#noncash-type').text();
+    var code = $('#payment-detail').find('.payment-order').text();
+
+    if (!payment || !code) {
+        console.error("Data payment atau code tidak ditemukan.");
+        alert("Tidak dapat mencetak. Data tidak ditemukan.");
+        return;
+    }
+
+    code = btoa(code);
+    payment = btoa(payment);
+
+    // var printWindow = window.open('http://localhost/pos/report/print-order-finish.php?id=' + code + '&pay=' + payment, 'POS', 'width=1000, height=800');
+    var printWindow = window.open('http://localhost/pos/report/print-not-printer.html?id=' + code + '&pay=' + payment, 'POS', 'width=1000, height=800');
+    
+    if (!printWindow) {
+        alert("Jendela cetak tidak dapat dibuka. Periksa pengaturan popup browser Anda.");
+    }
+});
+
+
+// $('#payment-print').click(function () {
+//     // Mengambil teks dari elemen dengan ID 'noncash-type' dan menyimpannya dalam variabel 'payment'
+//     var payment = $('#noncash-type').text();
+    
+//     // Mencari elemen dengan kelas 'payment-order' di dalam elemen dengan ID 'payment-detail', 
+//     // kemudian mengambil teksnya dan menyimpannya dalam variabel 'code'
+//     var code = $('#payment-detail').find('.payment-order').text();
+
+//     // Mencari elemen dengan ID 'payment-noncash-item' dan mengambil teksnya sebagai jumlah total item
+//     var totalItems = $('#payment-noncash-item').text();
+
+//     // Mencari elemen dengan ID 'payment-noncash-grandtotal' dan mengambil teksnya sebagai total keseluruhan
+//     var grandTotal = $('#payment-noncash-grandtotal').text();
+
+//     // Mencari elemen dengan ID 'payment-noncash-discount' dan mengambil teksnya sebagai jumlah diskon
+//     var discount = $('#payment-noncash-discount').text();
+
+//     // Mencari elemen dengan ID 'payment-noncash-tax' dan mengambil teksnya sebagai jumlah pajak
+//     var tax = $('#payment-noncash-tax').text();
+
+//     // Mencari elemen dengan ID 'payment-noncash-service' dan mengambil teksnya sebagai biaya layanan
+//     var serviceCharge = $('#payment-noncash-service').text();
+
+//     // Mencari elemen dengan ID 'payment-noncash-total' dan mengambil teksnya sebagai total akhir
+//     var totalAmount = $('#payment-noncash-total').text();
+
+//     // Mengonversi teks dalam variabel 'code' menjadi string yang dienkode dalam base64
+//     code = btoa(code);
+    
+//     // Mengonversi teks dalam variabel 'payment' menjadi string yang dienkode dalam base64
+//     payment = btoa(payment);
+
+//     // Mencari elemen dengan ID 'print' dan menampilkan semua informasi pembayaran
+//     $('#print').html(`
+//         <h5>Non-Cash Payment Receipt</h5>
+//         <p><strong>Order Number:</strong> ${atob(code)}</p>
+//         <p><strong>Payment Method:</strong> ${atob(payment)}</p>
+//         <p><strong>Total Items:</strong> ${totalItems}</p>
+//         <p><strong>Grand Total:</strong> ${grandTotal}</p>
+//         <p><strong>Discount:</strong> ${discount}</p>
+//         <p><strong>Tax:</strong> ${tax}</p>
+//         <p><strong>Service Charge:</strong> ${serviceCharge}</p>
+//         <p><strong>Total:</strong> ${totalAmount}</p>
+//     `);
+
+//     // Membuka jendela baru dengan URL tertentu, yang berisi parameter 'id' dan 'pay' 
+//     // yang nilainya berasal dari variabel 'code' dan 'payment' yang telah dienkode. 
+//     // Jendela baru ini diberi nama 'POS' dan memiliki ukuran tertentu.
+//     window.open('http://localhost/pos/report/print-order-finish.php?id=' + code + '&pay=' + payment, 'POS', 'width=2500, height=500');
+// });
+
+
+// $('#payment-print').click(function () {
+//     // Ambil data dari elemen-elemen yang ada dalam modal
+//     var paymentType = $('#noncash-type').text();
+//     var orderNumber = $('#payment-detail .payment-order').text();
+//     var totalItems = $('#payment-noncash-item').text();
+//     var grandTotal = $('#payment-noncash-grandtotal').text();
+//     var discount = $('#payment-noncash-discount').text();
+//     var tax = $('#payment-noncash-tax').text();
+//     var serviceCharge = $('#payment-noncash-service').text();
+//     var totalAmount = $('#payment-noncash-total').text();
+
+//     // Format struk untuk ditampilkan dalam modal
+//     var receiptHtml = `
+//         <h5>Non-Cash Payment Receipt</h5>
+//         <p><strong>Order Number:</strong> ${orderNumber}</p>
+//         <p><strong>Payment Method:</strong> ${paymentType}</p>
+//         <hr>
+//         <p><strong>Total Items:</strong> ${totalItems}</p>
+//         <p><strong>Grand Total:</strong> ${grandTotal}</p>
+//         <p><strong>Discount:</strong> ${discount}</p>
+//         <p><strong>Tax:</strong> ${tax}</p>
+//         <p><strong>Service Charge:</strong> ${serviceCharge}</p>
+//         <hr>
+//         <h5><strong>Total:</strong> ${totalAmount}</h5>
+//     `;
+
+//     // Tampilkan struk di dalam elemen yang diinginkan, misalnya di dalam modal
+//     $('#modal-payment-cash').html(receiptHtml);
+// });
+
+// function printReceipt() {
+//     var printContent = $('#modal-payment-cash').html();
+//     var originalContent = document.body.innerHTML;
+
+//     document.body.innerHTML = printContent;
+//     window.print();
+//     document.body.innerHTML = originalContent;
+//     window.location.reload();
+// }
+
 
 
 		//payment cash
@@ -2200,4 +2412,118 @@ function paymentCash(url, sales_code, id) {
 		});
 
 	});
+
+
+	// COBA PRINT BAGIAN PAYMENT 
+// 	document.getElementById('payment-print-bill').addEventListener('click', function () {
+//     $.ajax({
+//         url: 'process/P_sales.php',
+//         type: 'POST',
+//         data: { 'aksi': 'getStaticBillData' },
+//         dataType: 'json',
+//         success: function (data) {
+//             if (data.status === 'success') {
+//                 const { jsPDF } = window.jspdf;
+//                 const doc = new jsPDF();
+
+//                 // Judul PDF
+//                 doc.setFontSize(18);
+//                 doc.text("Order Receipt", 10, 10);
+
+//                 // Info Order
+//                 doc.setFontSize(12);
+//                 doc.text(`No pesanan: ${data.sales_code}`, 10, 20);
+//                 doc.text(`Tanggal: ${data.date}`, 10, 30);
+//                 doc.text(`Staff: ${data.staff}`, 10, 40);
+//                 doc.text(`Table: ${data.table}`, 10, 50);
+
+//                 // Tambahkan Detail Item
+//                 let startY = 70;
+//                 data.items.forEach((item) => {
+//                     doc.text(`${item.qty}`, 10, startY);
+//                     doc.text(`${item.product}`, 40, startY);
+//                     doc.text(`Rp ${item.price.toLocaleString('id-ID')}`, 140, startY);
+//                     startY += 10;
+//                 });
+
+//                 // Grand Total
+//                 doc.text(`Subtotal: Rp ${data.subtotal.toLocaleString('id-ID')}`, 10, startY + 10);
+//                 doc.text(`Discount: Rp ${data.discount.toLocaleString('id-ID')}`, 10, startY + 20);
+//                 doc.text(`Tax: Rp ${data.tax.toLocaleString('id-ID')}`, 10, startY + 30);
+//                 doc.text(`Service: Rp ${data.service.toLocaleString('id-ID')}`, 10, startY + 40);
+//                 doc.text(`Grand Total: Rp ${data.grand_total.toLocaleString('id-ID')}`, 10, startY + 50);
+
+//                 // Simpan PDF
+//                 doc.save('order-receipt.pdf');
+//             } else {
+//                 console.error('Failed to get data:', data);
+//             }
+//         },
+//         error: function (jqXHR, textStatus, errorThrown) {
+//             console.error('AJAX error:', textStatus, errorThrown);
+//         }
+//     });
+// });
+
+
+
+//DINAMIS
+document.getElementById('payment-print-bill').addEventListener('click', function () {
+    $.ajax({
+        url: 'process/P_sales.php',
+        type: 'POST',
+        data: { 'aksi': 'printBill', 'sales_code': globalSalesCode }, // Kirim sales_code
+        dataType: 'json',
+        success: function (data) {
+            console.log('Response:', data);
+
+            if (data.status === 'success') {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Judul PDF
+                doc.setFontSize(18);
+                doc.text("Order Receipt", 10, 10);
+
+                // Info Order
+                doc.setFontSize(12);
+                doc.text(`No pesanan: ${data.sales_code}`, 10, 20);
+                doc.text(`Tanggal: ${data.date}`, 10, 30);
+                doc.text(`Staff: ${data.operator}`, 10, 40);
+                doc.text(`Table: ${data.table_id}`, 10, 50);
+
+                // Tambahkan Detail Item
+                let startY = 70;
+                if (data.items && data.items.length > 0) {
+                    data.items.forEach((item) => {
+                        doc.text(`${item.qty}`, 10, startY);
+                        doc.text(`${item.product}`, 40, startY);
+                        doc.text(`Rp ${item.price.toLocaleString('id-ID')}`, 140, startY);
+                        startY += 10;
+                    });
+                } else {
+                    doc.text("No items found", 10, startY);
+                }
+
+                // Grand Total
+                doc.text(`Subtotal: Rp ${data.subtotal.toLocaleString('id-ID')}`, 10, startY + 10);
+                doc.text(`Discount: Rp ${data.discount.toLocaleString('id-ID')}`, 10, startY + 20);
+                doc.text(`Tax: Rp ${data.tax.toLocaleString('id-ID')}`, 10, startY + 30);
+                doc.text(`Service: Rp ${data.service.toLocaleString('id-ID')}`, 10, startY + 40);
+                doc.text(`Grand Total: Rp ${data.grand_total.toLocaleString('id-ID')}`, 10, startY + 50);
+
+                // Simpan PDF
+                doc.save('order-receipt.pdf');
+            } else {
+                console.error('Failed to get data:', data.msg);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error('AJAX error:', textStatus, errorThrown);
+        }
+    });
+});
+
+
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

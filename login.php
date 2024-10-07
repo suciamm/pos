@@ -215,7 +215,7 @@
                         status: status,
                         level: level
                     },
-                    success: function(response) {
+                    success: function(response) {   
                         var data = $.parseJSON(response);
                         console.log("Response from server:", data); // Tambahkan ini untuk debug
                         if (data.status == 'success') {
